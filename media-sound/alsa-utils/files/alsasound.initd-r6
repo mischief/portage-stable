@@ -1,10 +1,11 @@
 #!/sbin/runscript
 # $Id$
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 
 alsastatedir=/var/lib/alsa
 alsascrdir=/etc/alsa.d
+alsahomedir=/var/run/alsasound
 
 extra_commands="save restore"
 
@@ -15,6 +16,8 @@ depend() {
 
 restore() {
 	ebegin "Restoring Mixer Levels"
+
+	checkpath -q -d -m 0700 -o root:root ${alsahomedir} || return 1
 
 	if [ ! -r "${alsastatedir}/asound.state" ] ; then
 		ewarn "No mixer config in ${alsastatedir}/asound.state, you have to unmute your card!"
@@ -29,7 +32,7 @@ restore() {
 		[ -e /dev/snd/controlC${cardnum} ] || sleep 2
 		[ -e /dev/snd/controlC${cardnum} ] || sleep 2
 		[ -e /dev/snd/controlC${cardnum} ] || sleep 2
-		alsactl -I -f "${alsastatedir}/asound.state" restore ${cardnum} \
+		alsactl -E HOME="${alsahomedir}" -I -f "${alsastatedir}/asound.state" restore ${cardnum} \
 			|| ewarn "Errors while restoring defaults, ignoring"
 	done
 
@@ -49,8 +52,10 @@ restore() {
 save() {
 	ebegin "Storing ALSA Mixer Levels"
 
+	checkpath -q -d -m 0700 -o root:root ${alsahomedir} || return 1
+
 	mkdir -p "${alsastatedir}"
-	if ! alsactl -f "${alsastatedir}/asound.state" store; then
+	if ! alsactl -E HOME="${alsahomedir}" -f "${alsastatedir}/asound.state" store; then
 		eerror "Error saving levels."
 		eend 1
 		return 1
