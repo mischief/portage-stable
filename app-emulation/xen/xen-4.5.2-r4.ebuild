@@ -1,38 +1,48 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/xen/xen-4.2.5-r2.ebuild,v 1.2 2014/11/26 13:53:12 ago Exp $
+# $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
+
+inherit eutils multilib mount-boot flag-o-matic python-any-r1 toolchain-funcs
+
+MY_PV=${PV/_/-}
+MY_P=${PN}-${PV/_/-}
 
 if [[ $PV == *9999 ]]; then
+	inherit git-r3
 	KEYWORDS=""
-	REPO="xen-unstable.hg"
-	EHG_REPO_URI="http://xenbits.xensource.com/${REPO}"
-	S="${WORKDIR}/${REPO}"
-	live_eclass="mercurial"
+	EGIT_REPO_URI="git://xenbits.xen.org/${PN}.git"
+	SRC_URI=""
 else
-	KEYWORDS="amd64 ~x86"
-	UPSTREAM_VER=1
+	KEYWORDS="amd64 ~arm ~arm64 -x86"
+	UPSTREAM_VER=
+	SECURITY_VER=0
+	# var set to reflect https://dev.gentoo.org/~idella4/
+	SEC_VER=6
 	GENTOO_VER=
 
 	[[ -n ${UPSTREAM_VER} ]] && \
-		UPSTREAM_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P}-upstream-patches-${UPSTREAM_VER}.tar.xz"
+		UPSTREAM_PATCHSET_URI="https://dev.gentoo.org/~dlan/distfiles/${P}-upstream-patches-${UPSTREAM_VER}.tar.xz"
+	[[ -n ${SECURITY_VER} ]] && \
+		SECURITY_PATCHSET_URI="https://dev.gentoo.org/~idella4/distfiles/${PN/-tools}-security-patches-${SECURITY_VER}.tar.xz
+		https://dev.gentoo.org/~idella4/distfiles/${PN/-tools}-security-patches-${SEC_VER}.tar.gz"
 	[[ -n ${GENTOO_VER} ]] && \
-		GENTOO_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P}-gentoo-patches-${GENTOO_VER}.tar.xz"
-	SRC_URI="http://bits.xensource.com/oss-xen/release/${PV}/xen-${PV}.tar.gz
+		GENTOO_PATCHSET_URI="https://dev.gentoo.org/~dlan/distfiles/${PN}-gentoo-patches-${GENTOO_VER}.tar.xz"
+	SRC_URI="http://bits.xensource.com/oss-xen/release/${MY_PV}/${MY_P}.tar.gz
 		${UPSTREAM_PATCHSET_URI}
+		${SECURITY_PATCHSET_URI}
 		${GENTOO_PATCHSET_URI}"
-fi
 
-inherit mount-boot flag-o-matic python-any-r1 toolchain-funcs eutils ${live_eclass}
+fi
 
 DESCRIPTION="The Xen virtual machine monitor"
 HOMEPAGE="http://xen.org/"
 LICENSE="GPL-2"
 SLOT="0"
-IUSE="custom-cflags debug efi flask pae xsm"
+IUSE="custom-cflags debug efi flask xsm"
 
 DEPEND="${PYTHON_DEPS}
 	efi? ( >=sys-devel/binutils-2.22[multitarget] )
@@ -45,9 +55,10 @@ RESTRICT="test"
 # Approved by QA team in bug #144032
 QA_WX_LOAD="boot/xen-syms-${PV}"
 
-REQUIRED_USE="
-	flask? ( xsm )
-	"
+REQUIRED_USE="flask? ( xsm )
+	arm? ( debug )"
+
+S="${WORKDIR}/${MY_P}"
 
 pkg_setup() {
 	python-any-r1_pkg_setup
@@ -58,6 +69,10 @@ pkg_setup() {
 			export XEN_TARGET_ARCH="x86_32"
 		elif use amd64; then
 			export XEN_TARGET_ARCH="x86_64"
+		elif use arm; then
+			export XEN_TARGET_ARCH="arm32"
+		elif use arm64; then
+			export XEN_TARGET_ARCH="arm64"
 		else
 			die "Unsupported architecture!"
 		fi
@@ -80,6 +95,22 @@ src_prepare() {
 			epatch "${WORKDIR}"/patches-upstream
 	fi
 
+	if [[ -n ${SECURITY_VER} ]]; then
+		einfo "Try to apply Xen Security patcheset"
+		# apply main xen patches
+		# Two parallel systems, both work side by side
+		# Over time they may concdense into one. This will suffice for now
+		EPATCH_SUFFIX="patch"
+		EPATCH_FORCE="yes"
+		for i in ${XEN_SECURITY_MAIN}; do
+			epatch "${WORKDIR}"/patches-security/xen/$i
+		done
+
+		for i in "${WORKDIR}"/xen-sec/xsa*.patch; do
+			epatch $i
+		done
+	fi
+
 	# Gentoo's patchset
 	if [[ -n ${GENTOO_VER} ]]; then
 		EPATCH_SUFFIX="patch" \
@@ -87,11 +118,11 @@ src_prepare() {
 			epatch "${WORKDIR}"/patches-gentoo
 	fi
 
-	# Drop .config and fix gcc-4.6
-	epatch  "${FILESDIR}"/${PN/-pvgrub/}-4-fix_dotconfig-gcc.patch
+	# Drop .config
+	sed -e '/-include $(XEN_ROOT)\/.config/d' -i Config.mk || die "Couldn't	drop"
 
 	if use efi; then
-		epatch "${FILESDIR}"/${PN}-4.2-efi.patch
+		epatch "${FILESDIR}"/${PN}-4.5-efi.patch
 		export EFI_VENDOR="gentoo"
 		export EFI_MOUNTPOINT="boot"
 	fi
@@ -109,6 +140,9 @@ src_prepare() {
 			-i {} \; || die "failed to re-set custom-cflags"
 	fi
 
+	# remove -Werror for gcc-4.6's sake
+	find "${S}" -name 'Makefile*' -o -name '*.mk' -o -name 'common.make' | \
+		xargs sed -i 's/ *-Werror */ /'
 	# not strictly necessary to fix this
 	sed -i 's/, "-Werror"//' "${S}/tools/python/setup.py" || die "failed to re-set setup.py"
 
@@ -116,8 +150,9 @@ src_prepare() {
 }
 
 src_configure() {
+	use arm && myopt="${myopt} CONFIG_EARLY_PRINTK=sun7i"
+
 	use debug && myopt="${myopt} debug=y"
-	use pae && myopt="${myopt} pae=y"
 
 	if use custom-cflags; then
 		filter-flags -fPIE -fstack-protector
@@ -129,13 +164,12 @@ src_configure() {
 
 src_compile() {
 	# Send raw LDFLAGS so that --as-needed works
-	emake CC="$(tc-getCC)" LDFLAGS="$(raw-ldflags)" LD="$(tc-getLD)" -C xen ${myopt}
+	emake V=1 CC="$(tc-getCC)" LDFLAGS="$(raw-ldflags)" LD="$(tc-getLD)" -C xen ${myopt}
 }
 
 src_install() {
 	local myopt
 	use debug && myopt="${myopt} debug=y"
-	use pae && myopt="${myopt} pae=y"
 
 	# The 'make install' doesn't 'mkdir -p' the subdirs
 	if use efi; then
@@ -147,9 +181,12 @@ src_install() {
 
 pkg_postinst() {
 	elog "Official Xen Guide and the unoffical wiki page:"
-	elog " http://www.gentoo.org/doc/en/xen-guide.xml"
+	elog " https://wiki.gentoo.org/wiki/Xen"
 	elog " http://en.gentoo-wiki.com/wiki/Xen/"
 
-	use pae && ewarn "This is a PAE build of Xen. It will *only* boot PAE kernels!"
 	use efi && einfo "The efi executable is installed in boot/efi/gentoo"
+
+	elog "You can optionally block the installation of /boot/xen-syms by an entry"
+	elog "in folder /etc/portage/env using the portage's feature INSTALL_MASK"
+	elog "e.g. echo ${msg} > /etc/portage/env/xen.conf"
 }

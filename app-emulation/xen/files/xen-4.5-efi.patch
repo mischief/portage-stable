@@ -5,20 +5,20 @@ index 39839a3..d2603f0 100644
 @@ -38,9 +38,15 @@ _install: Z=$(CONFIG_XEN_INSTALL_SUFFIX)
  _install: $(TARGET)$(CONFIG_XEN_INSTALL_SUFFIX)
  	[ -d $(D)/boot ] || $(INSTALL_DIR) $(D)/boot
- 	$(INSTALL_DATA) $(TARGET)$(Z) $(D)/boot/$(T)-$(XEN_FULLVERSION)$(Z)
--	ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)/boot/$(T)-$(XEN_VERSION).$(XEN_SUBVERSION)$(Z)
--	ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)/boot/$(T)-$(XEN_VERSION)$(Z)
--	ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)/boot/$(T)$(Z)
+ 	$(INSTALL_DATA) $(TARGET)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_FULLVERSION)$(Z)
+-	ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_VERSION).$(XEN_SUBVERSION)$(Z)
+-	ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_VERSION)$(Z)
+-	ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)$(BOOT_DIR)/$(T)$(Z)
 +	if [ 'x$(EFI_VENDOR)' == 'x' ]; then \
-+		ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)/boot/$(T)-$(XEN_VERSION).$(XEN_SUBVERSION)$(Z); \
-+		ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)/boot/$(T)-$(XEN_VERSION)$(Z);\
-+		ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)/boot/$(T)$(Z); \
++		ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_VERSION).$(XEN_SUBVERSION)$(Z); \
++		ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_VERSION)$(Z);\
++		ln -f -s $(T)-$(XEN_FULLVERSION)$(Z) $(D)$(BOOT_DIR)/$(T)$(Z); \
 +	else \
-+		$(INSTALL_DATA) $(TARGET)$(Z) $(D)/boot/$(T)-$(XEN_VERSION).$(XEN_SUBVERSION)$(Z); \
-+		$(INSTALL_DATA) $(TARGET)$(Z) $(D)/boot/$(T)-$(XEN_VERSION)$(Z);\
-+		$(INSTALL_DATA) $(TARGET)$(Z) $(D)/boot/$(T)$(Z); \
++		$(INSTALL_DATA) $(TARGET)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_VERSION).$(XEN_SUBVERSION)$(Z); \
++		$(INSTALL_DATA) $(TARGET)$(Z) $(D)$(BOOT_DIR)/$(T)-$(XEN_VERSION)$(Z);\
++		$(INSTALL_DATA) $(TARGET)$(Z) $(D)$(BOOT_DIR)/$(T)$(Z); \
 +	fi; \
- 	$(INSTALL_DATA) $(TARGET)-syms $(D)/boot/$(T)-syms-$(XEN_FULLVERSION)
+ 	$(INSTALL_DATA) $(TARGET)-syms $(D)$(BOOT_DIR)/$(T)-syms-$(XEN_FULLVERSION)
  	if [ -r $(TARGET).efi -a -n '$(EFI_DIR)' ]; then \
  		[ -d $(D)$(EFI_DIR) ] || $(INSTALL_DIR) $(D)$(EFI_DIR); \
 diff --git a/xen/arch/x86/Makefile b/xen/arch/x86/Makefile
@@ -34,3 +34,4 @@ index d502bdf..a2121b0 100644
  EFI_LDFLAGS += --image-base=$(1) --stack=0,0 --heap=0,0 --strip-debug
  EFI_LDFLAGS += --section-alignment=0x200000 --file-alignment=0x20
  EFI_LDFLAGS += --major-image-version=$(XEN_VERSION)
+
