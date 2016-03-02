@@ -1,6 +1,6 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/sandbox/sandbox-2.5.ebuild,v 1.11 2013/11/14 21:36:59 vapier Exp $
+# $Id$
 
 #
 # don't monkey with this ebuild unless contacting portage devs.
@@ -10,13 +10,13 @@
 inherit eutils flag-o-matic toolchain-funcs multilib unpacker multiprocessing
 
 DESCRIPTION="sandbox'd LD_PRELOAD hack"
-HOMEPAGE="http://www.gentoo.org/proj/en/portage/sandbox/"
+HOMEPAGE="https://www.gentoo.org/proj/en/portage/sandbox/"
 SRC_URI="mirror://gentoo/${P}.tar.xz
-	http://dev.gentoo.org/~vapier/dist/${P}.tar.xz"
+	https://dev.gentoo.org/~vapier/dist/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd -x86-fbsd"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~sparc-fbsd ~x86-fbsd"
 IUSE="multilib"
 
 DEPEND="app-arch/xz-utils
@@ -43,6 +43,12 @@ sb_foreach_abi() {
 	ABI=${OABI}
 }
 
+src_unpack() {
+	unpacker
+	cd "${S}"
+	epatch_user
+}
+
 sb_configure() {
 	mkdir "${WORKDIR}/build-${ABI}"
 	cd "${WORKDIR}/build-${ABI}"
@@ -50,7 +56,7 @@ sb_configure() {
 	use multilib && multilib_toolchain_setup ${ABI}
 
 	einfo "Configuring sandbox for ABI=${ABI}..."
-	ECONF_SOURCE="../${P}/" \
+	ECONF_SOURCE="${S}" \
 	econf ${myconf} || die
 }
 

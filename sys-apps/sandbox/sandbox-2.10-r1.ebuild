@@ -7,7 +7,7 @@
 # period.
 #
 
-inherit eutils flag-o-matic toolchain-funcs multilib unpacker multiprocessing
+inherit eutils flag-o-matic toolchain-funcs multilib unpacker multiprocessing pax-utils
 
 DESCRIPTION="sandbox'd LD_PRELOAD hack"
 HOMEPAGE="https://www.gentoo.org/proj/en/portage/sandbox/"
@@ -16,7 +16,7 @@ SRC_URI="mirror://gentoo/${P}.tar.xz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd -x86-fbsd"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~sparc-fbsd ~x86-fbsd"
 IUSE="multilib"
 
 DEPEND="app-arch/xz-utils
@@ -46,14 +46,8 @@ sb_foreach_abi() {
 src_unpack() {
 	unpacker
 	cd "${S}"
-	epatch "${FILESDIR}"/${P}-trace-hppa.patch #425062
-	epatch "${FILESDIR}"/${P}-log-var.patch
-	epatch "${FILESDIR}"/${P}-static-close-fd.patch #364877
-	epatch "${FILESDIR}"/${P}-desktop.patch #443672
-	epatch "${FILESDIR}"/${P}-open-nofollow.patch #413441
-	epatch "${FILESDIR}"/${P}-check-empty-paths-at.patch #346929
-	epatch "${FILESDIR}"/${P}-no-pch.patch #425524
-	epatch "${FILESDIR}"/${P}-gcc-5.patch
+	epatch "${FILESDIR}"/${P}-memory-corruption.patch #568714
+	epatch "${FILESDIR}"/${P}-disable-same.patch
 	epatch_user
 }
 
@@ -63,8 +57,11 @@ sb_configure() {
 
 	use multilib && multilib_toolchain_setup ${ABI}
 
+	local myconf=()
+	host-is-pax && myconf+=( --disable-pch ) #301299 #425524 #572092
+
 	einfo "Configuring sandbox for ABI=${ABI}..."
-	ECONF_SOURCE="../${P}/" \
+	ECONF_SOURCE="${S}" \
 	econf ${myconf} || die
 }
 
