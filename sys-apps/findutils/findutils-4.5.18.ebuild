@@ -2,9 +2,11 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI="4"
+EAPI="5"
 
-inherit eutils flag-o-matic toolchain-funcs
+PYTHON_COMPAT=( python{2_7,3_3,3_4} )
+
+inherit eutils flag-o-matic toolchain-funcs python-any-r1
 
 DESCRIPTION="GNU utilities for finding files"
 HOMEPAGE="https://www.gnu.org/software/findutils/"
@@ -13,23 +15,22 @@ SRC_URI="mirror://gnu-alpha/${PN}/${P}.tar.gz"
 LICENSE="GPL-3+"
 SLOT="0"
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="debug nls selinux static"
+IUSE="debug nls selinux static test"
 
 RDEPEND="selinux? ( sys-libs/libselinux )
 	nls? ( virtual/libintl )"
 DEPEND="${RDEPEND}
+	test? ( ${PYTHON_DEPS} )
 	nls? ( sys-devel/gettext )"
 
+pkg_setup() {
+	use test && python-any-r1_pkg_setup
+}
+
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-test-bashisms.patch #531020
 	# Don't build or install locate because it conflicts with slocate,
 	# which is a secure version of locate.  See bug 18729
 	sed -i '/^SUBDIRS/s/locate//' Makefile.in
-
-	# Disable gnulib build test that has no impact on the source.
-	# Re-enable w/next version bump (and gnulib is updated). #554728
-	[[ ${PV} != "4.5.14" ]] && die "re-enable test #554728"
-	echo 'exit 0' > tests/test-update-copyright.sh || die
 }
 
 src_configure() {
@@ -47,10 +48,8 @@ src_configure() {
 		--libexecdir='$(libdir)'/find
 }
 
-src_install() {
+src_compile() {
+	# We don't build locate, but the docs want a file in there.
+	emake -C locate dblocation.texi
 	default
-
-	# We don't need this, so punt it.
-	rm "${ED}"/usr/bin/${program_prefix}oldfind \
-		"${ED}"/usr/share/man/man1/${program_prefix}oldfind.1 || die
 }
