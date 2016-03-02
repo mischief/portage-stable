@@ -1,27 +1,27 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libburn/libburn-1.3.4.ebuild,v 1.12 2014/08/10 20:34:53 slyfox Exp $
+# $Id$
 
 EAPI=5
 
 inherit eutils
 
-DESCRIPTION="Libburn is an open-source library for reading, mastering and writing optical discs"
+MY_PV="${PV/_p01/.pl01}"
+
+DESCRIPTION="Open-source library for reading, mastering and writing optical discs"
 HOMEPAGE="http://libburnia-project.org"
-SRC_URI="http://files.libburnia-project.org/releases/${P}.tar.gz"
+SRC_URI="http://files.libburnia-project.org/releases/${PN}-${MY_PV}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 IUSE="cdio debug static-libs track-src-odirect"
 
 RDEPEND="cdio? ( >=dev-libs/libcdio-0.83 )"
 DEPEND="$RDEPEND
 	virtual/pkgconfig"
 
-src_prepare () {
-	epatch "${FILESDIR}/${PN}-1.3.6-buffer-overflow.patch"
-}
+S="${WORKDIR}/${P%_p01}"
 
 src_configure() {
 	econf \
@@ -43,5 +43,5 @@ src_install() {
 	docinto cdrskin/html
 	dohtml cdrskin/cdrskin_eng.html
 
-	find "${D}" -name '*.la' -exec rm -rf '{}' '+' || die "la removal failed"
+	prune_libtool_files --all
 }
