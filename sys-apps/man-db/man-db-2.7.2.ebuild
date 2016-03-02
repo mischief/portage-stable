@@ -1,10 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/man-db/man-db-2.6.6.ebuild,v 1.13 2015/01/13 14:31:25 polynomial-c Exp $
+# $Id$
 
 EAPI="4"
 
-inherit eutils user
+inherit eutils user versionator
 
 DESCRIPTION="a man replacement that utilizes berkdb instead of flat files"
 HOMEPAGE="http://www.nongnu.org/man-db/"
@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~arm-linux ~x86-linux"
 IUSE="berkdb +gdbm nls selinux static-libs zlib"
 
-CDEPEND="dev-libs/libpipeline
+CDEPEND=">=dev-libs/libpipeline-1.4.0
 	berkdb? ( sys-libs/db )
 	gdbm? ( sys-libs/gdbm )
 	!berkdb? ( !gdbm? ( sys-libs/gdbm ) )
@@ -47,6 +47,7 @@ src_configure() {
 	export ac_cv_lib_z_gzopen=$(usex zlib)
 	econf \
 		--docdir='$(datarootdir)'/doc/${PF} \
+		--with-systemdtmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d \
 		--enable-setuid \
 		--with-sections="1 1p 8 2 3 3p 4 5 6 7 9 0p tcl n l p o 1x 2x 3x 4x 5x 6x 7x 8x" \
 		$(use_enable nls) \
@@ -77,5 +78,12 @@ pkg_preinst() {
 		mkdir -p "${EROOT}var/cache/man"
 		chown -R man:0 "${EROOT}"var/cache/man
 		find "${EROOT}"var/cache/man -type d '!' -perm /g=s -exec chmod 2755 {} +
+	fi
+}
+
+pkg_postinst() {
+	if [[ $(get_version_component_range 2 ${REPLACING_VERSIONS}) -lt 7 ]] ; then
+		einfo "Rebuilding man-db from scratch with new database format!"
+		mandb --quiet --create
 	fi
 }
