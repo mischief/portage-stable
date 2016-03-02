@@ -1,16 +1,18 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libisofs/libisofs-1.3.4.ebuild,v 1.11 2014/08/10 20:35:55 slyfox Exp $
+# $Id$
 
 EAPI=5
 
-DESCRIPTION="libisofs is an open-source library for reading, mastering and writing optical discs"
+inherit eutils
+
+DESCRIPTION="Open-source library for reading, mastering and writing optical discs"
 HOMEPAGE="http://libburnia-project.org/"
 SRC_URI="http://files.libburnia-project.org/releases/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ppc ppc64 sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 IUSE="acl debug static-libs verbose-debug xattr zlib"
 
 RDEPEND="acl? ( virtual/acl )
@@ -36,5 +38,5 @@ src_install() {
 
 	dodoc Roadmap doc/{*.txt,Tutorial}
 
-	find "${D}" -name '*.la' -exec rm -rf '{}' '+' || die "la removal failed"
+	prune_libtool_files --all
 }
