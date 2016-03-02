@@ -1,10 +1,10 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-crypt/gnupg/gnupg-2.1.4.ebuild,v 1.2 2015/05/21 04:39:45 mattst88 Exp $
+# $Id$
 
 EAPI="5"
 
-inherit autotools eutils flag-o-matic toolchain-funcs
+inherit eutils autotools flag-o-matic toolchain-funcs
 
 DESCRIPTION="The GNU Privacy Guard, a GPL OpenPGP implementation"
 HOMEPAGE="http://www.gnupg.org/"
@@ -13,22 +13,23 @@ SRC_URI="mirror://gnupg/gnupg/${MY_P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~x86"
-IUSE="bzip2 doc +gnutls ldap nls readline static selinux smartcard tools usb"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86"
+IUSE="bzip2 doc +gnutls ldap nls readline static selinux smartcard tofu tools usb"
 
 COMMON_DEPEND_LIBS="
 	dev-libs/npth
-	>=dev-libs/libassuan-2
-	>=dev-libs/libgcrypt-1.6.2
+	>=dev-libs/libassuan-2.4.1
+	>=dev-libs/libgcrypt-1.6.2[threads]
 	>=dev-libs/libgpg-error-1.17
-	>=dev-libs/libksba-1.0.7
+	>=dev-libs/libksba-1.2.0
 	>=net-misc/curl-7.10
 	gnutls? ( >=net-libs/gnutls-3.0 )
 	sys-libs/zlib
 	ldap? ( net-nds/openldap )
 	bzip2? ( app-arch/bzip2 )
-	readline? ( sys-libs/readline )
+	readline? ( sys-libs/readline:0= )
 	smartcard? ( usb? ( virtual/libusb:0 ) )
+	tofu? ( >=dev-db/sqlite-3.7 )
 	"
 COMMON_DEPEND_BINS="app-crypt/pinentry
 		   !app-crypt/dirmngr"
@@ -59,8 +60,9 @@ REQUIRED_USE="smartcard? ( !static )"
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	epatch "${FILESDIR}/${PN}-2.0.17-gpgsm-gencert.patch"
+	epatch "${FILESDIR}/${P}-pkg-config.patch"
 	epatch_user
+	eautoreconf
 }
 
 src_configure() {
@@ -86,6 +88,9 @@ src_configure() {
 		myconf+=( --enable-symcryptrun )
 	fi
 
+	# glib fails and picks up clang's internal stdint.h causing weird errors
+	[[ ${CC} == clang ]] && export gl_cv_absolute_stdint_h=/usr/include/stdint.h
+
 	econf \
 		--docdir="${EPREFIX}/usr/share/doc/${PF}" \
 		--enable-gpg \
@@ -98,7 +103,15 @@ src_configure() {
 		$(use_with ldap) \
 		$(use_enable nls) \
 		$(use_with readline) \
+		$(use_enable tofu) \
 		CC_FOR_BUILD="$(tc-getBUILD_CC)"
+
+		# The pkg-config patch specific to 2.1.10 is causing an eautoreconf 
+		# it shows up as being a developer version and with "unknown" suffix
+		# we remove this explicitly for the 2.1.10 release as it does not contain
+		# unstable code
+		sed -i "s/#define IS_DEVELOPMENT_VERSION 1//" config.h || die
+		sed -i "s/2.1.10-unknown/2.1.10/" config.h || die
 }
 
 src_compile() {
@@ -117,7 +130,9 @@ src_install() {
 		tools/{gpg-zip,gpgconf,gpgsplit,lspgpot,mail-signed-keys,make-dns-cert}
 
 	emake DESTDIR="${D}" -f doc/Makefile uninstall-nobase_dist_docDATA
-	rm "${ED}"/usr/share/gnupg/help* || die
+	# The help*txt files are read from the datadir by GnuPG directly.
+	# They do not work if compressed or moved!
+	#rm "${ED}"/usr/share/gnupg/help* || die
 
 	dodoc ChangeLog NEWS README THANKS TODO VERSION doc/FAQ doc/DETAILS \
 		doc/HACKING doc/TRANSLATE doc/OpenPGP doc/KEYSERVER doc/help*
