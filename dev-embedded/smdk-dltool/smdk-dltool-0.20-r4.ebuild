@@ -25,7 +25,7 @@ S=${WORKDIR}/releases/smdk-tools-v${PV}/dltool
 src_prepare() {
 	epatch "${FILESDIR}"/${P}-add-S3C64xx-support.patch
 	epatch "${FILESDIR}"/${P}-build.patch
-	epatch "${FILESDIR}"/${P}-libusb-1.0.patch
+	epatch "${FILESDIR}"/${P}-libusb-1.0-r1.patch
 	tc-export CC PKG_CONFIG
 }
 
