@@ -21,18 +21,17 @@ SLOT="0"
 # The defaults match the upstream Makefile.
 # Note: Do not list bitbang_spi as it is not a programmer; it's a backend used
 # by some other spi programmers.
-IUSE_PROGRAMMERS="atahpt +atapromise +atavia +buspirate_spi dediprog +drkaiser +dummy
+IUSE_PROGRAMMERS="atahpt +atavia +buspirate_spi dediprog +drkaiser +dummy
 +ft2232_spi +gfxnvidia +internal +it8212 +linux_spi mstarddc_spi +nic3com
 +nicintel +nicintel_eeprom +nicintel_spi nicnatsemi +nicrealtek +ogp_spi
 +pickit2_spi +pony_spi +rayer_spi +satamv +satasii +serprog +usbblaster_spi"
 IUSE="${IUSE_PROGRAMMERS} +internal_dmi static tools +wiki"
 
 LIB_DEPEND="atahpt? ( sys-apps/pciutils[static-libs(+)] )
-	atapromise? ( sys-apps/pciutils[static-libs(+)] )
 	atavia? ( sys-apps/pciutils[static-libs(+)] )
 	dediprog? ( virtual/libusb:0[static-libs(+)] )
 	drkaiser? ( sys-apps/pciutils[static-libs(+)] )
-	ft2232_spi? ( dev-embedded/libftdi:=[static-libs(+)] )
+	ft2232_spi? ( dev-embedded/libftdi:0[static-libs(+)] )
 	gfxnvidia? ( sys-apps/pciutils[static-libs(+)] )
 	it8212? ( sys-apps/pciutils[static-libs(+)] )
 	internal? ( sys-apps/pciutils[static-libs(+)] )
@@ -47,7 +46,7 @@ LIB_DEPEND="atahpt? ( sys-apps/pciutils[static-libs(+)] )
 	rayer_spi? ( sys-apps/pciutils[static-libs(+)] )
 	satamv? ( sys-apps/pciutils[static-libs(+)] )
 	satasii? ( sys-apps/pciutils[static-libs(+)] )
-	usbblaster_spi? ( dev-embedded/libftdi:=[static-libs(+)] )"
+	usbblaster_spi? ( dev-embedded/libftdi:0[static-libs(+)] )"
 RDEPEND="!static? ( ${LIB_DEPEND//\[static-libs(+)]} )"
 DEPEND="${RDEPEND}
 	static? ( ${LIB_DEPEND} )
@@ -117,7 +116,7 @@ src_test() {
 src_install() {
 	dosbin flashrom
 	doman flashrom.8
-	dodoc README Documentation/*.txt
+	dodoc ChangeLog README Documentation/*.txt
 
 	if use tools ; then
 		if use amd64 ; then
