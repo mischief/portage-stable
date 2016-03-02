@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/boost-build/boost-build-1.55.0-r1.ebuild,v 1.5 2015/03/10 21:01:36 vapier Exp $
+# $Id$
 
 EAPI="5"
 
@@ -11,7 +11,7 @@ inherit eutils flag-o-matic multilib python-single-r1 toolchain-funcs versionato
 
 MY_PV=$(replace_all_version_separators _)
 
-DESCRIPTION="A system for large project software construction, which is simple to use and powerful"
+DESCRIPTION="A system for large project software construction, simple to use and powerful"
 HOMEPAGE="http://www.boost.org/doc/tools/build/index.html"
 SRC_URI="mirror://sourceforge/boost/boost_${MY_PV}.tar.bz2"
 
