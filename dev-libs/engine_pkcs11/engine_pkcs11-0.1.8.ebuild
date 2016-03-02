@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2012 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/engine_pkcs11/engine_pkcs11-0.1.8.ebuild,v 1.2 2010/02/15 19:55:35 josejx Exp $
+# $Id$
 
 EAPI="2"
 
@@ -16,12 +16,13 @@ HOMEPAGE="http://www.opensc-project.org/engine_pkcs11"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ppc ppc64 ~sparc ~x86"
-IUSE="doc"
+KEYWORDS="~alpha amd64 hppa ia64 ppc ppc64 sparc x86"
+IUSE=""
 
-DEPEND=">=dev-libs/libp11-0.2.5
-	dev-libs/openssl"
-RDEPEND="${DEPEND}"
+RDEPEND=">=dev-libs/libp11-0.2.5
+	>=dev-libs/openssl-0.9.7d:0"
+DEPEND="${RDEPEND}
+	virtual/pkgconfig"
 
 if [[ "${PV}" = "9999" ]]; then
 	DEPEND="${DEPEND}
@@ -37,7 +38,8 @@ src_configure() {
 	econf \
 		--docdir="/usr/share/doc/${PF}" \
 		--htmldir="/usr/share/doc/${PF}/html" \
-		$(use_enable doc)
+		--disable-static --enable-shared \
+		--enable-doc
 }
 
 src_install() {
