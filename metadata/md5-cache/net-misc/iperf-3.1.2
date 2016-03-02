@@ -1,0 +1,13 @@
+DEFINED_PHASES=configure install prepare
+DEPEND=sctp? ( net-misc/lksctp-tools ) !<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.14.1:1.14 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4
+DESCRIPTION=A TCP, UDP, and SCTP network bandwidth measurement tool
+EAPI=6
+HOMEPAGE=https://github.com/esnet/iperf/
+IUSE=static-libs sctp
+KEYWORDS=~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~sparc ~x86 ~x86-fbsd ~x86-freebsd ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~m68k-mint
+LICENSE=BSD
+RDEPEND=sctp? ( net-misc/lksctp-tools )
+SLOT=3
+SRC_URI=https://codeload.github.com/esnet/iperf/tar.gz/3.1.2 -> iperf-3.1.2.tar.gz
+_eclasses_=autotools	199350adb9ae3c85e275b1409e43c90d	eutils	9fb270e417e0e83d64ca52586c4a79de	libtool	52d0e17251d04645ffaa61bfdd858944	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=e6d47bd8771b647fe6023efb27096365
