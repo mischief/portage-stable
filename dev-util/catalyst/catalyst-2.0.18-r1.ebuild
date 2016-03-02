@@ -1,31 +1,29 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/catalyst/catalyst-2.0.16.ebuild,v 1.2 2014/01/18 11:38:05 vapier Exp $
+# $Id$
 
 EAPI=5
 
 if [[ ${PV} == *9999* ]]; then
 	SRC_ECLASS="git-2"
-	EGIT_REPO_URI="git://git.overlays.gentoo.org/proj/catalyst.git"
+	EGIT_REPO_URI="anongit.gentoo.org/proj/catalyst.git"
 	EGIT_MASTER="master"
-	SRC_URI=""
-	KEYWORDS=""
 	S="${WORKDIR}/${PN}"
 else
 	SRC_URI="mirror://gentoo/${P}.tar.bz2
-		http://dev.gentoo.org/~jmbsvicetto/distfiles/${P}.tar.bz2
-		http://dev.gentoo.org/~mattst88/distfiles/${P}.tar.bz2
-		http://dev.gentoo.org/~zerochaos/distfiles/${P}.tar.bz2
-		http://dev.gentoo.org/~dolsen/releases/catalyst/${P}.tar.bz2"
+		https://dev.gentoo.org/~jmbsvicetto/distfiles/${P}.tar.bz2
+		https://dev.gentoo.org/~mattst88/distfiles/${P}.tar.bz2
+		https://dev.gentoo.org/~zerochaos/distfiles/${P}.tar.bz2
+		https://dev.gentoo.org/~dolsen/releases/catalyst/${P}.tar.bz2"
 	KEYWORDS="alpha amd64 arm arm64 hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-fbsd"
 fi
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 
 inherit eutils multilib python-single-r1 ${SRC_ECLASS}
 
 DESCRIPTION="Release metatool used for creating releases based on Gentoo Linux"
-HOMEPAGE="http://www.gentoo.org/proj/en/releng/catalyst/"
+HOMEPAGE="https://www.gentoo.org/proj/en/releng/catalyst/"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -38,6 +36,7 @@ DEPEND="
 RDEPEND="
 	app-arch/lbzip2
 	app-crypt/shash
+	app-arch/tar[xattr]
 	virtual/cdrtools
 	amd64? ( >=sys-boot/syslinux-3.72 )
 	ia64? ( sys-fs/dosfstools )
@@ -48,6 +47,8 @@ RDEPEND="
 "
 
 REQUIRED_USE=${PYTHON_REQUIRED_USE}
+
+PATCHES=( "${FILESDIR}/catalyst-2.0.18-Do-notuntarwith--acls.patch" )
 
 pkg_setup() {
 	if use ccache ; then
@@ -66,6 +67,10 @@ pkg_setup() {
 	echo
 
 	python-single-r1_pkg_setup
+}
+
+src_prepare() {
+	epatch "${PATCHES[@]}"
 }
 
 src_install() {
@@ -107,5 +112,5 @@ src_install() {
 pkg_postinst() {
 	einfo "You can find more information about catalyst by checking out the"
 	einfo "catalyst project page at:"
-	einfo "http://www.gentoo.org/proj/en/releng/catalyst/index.xml"
+	einfo "https://www.gentoo.org/proj/en/releng/catalyst/index.xml"
 }
