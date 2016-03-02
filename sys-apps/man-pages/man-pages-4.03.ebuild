@@ -1,28 +1,29 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/sys-apps/man-pages/man-pages-3.77.ebuild,v 1.1 2015/01/20 13:12:42 polynomial-c Exp $
+# $Id$
 
 EAPI=4
 
 GENTOO_PATCH=2
 
 DESCRIPTION="A somewhat comprehensive collection of Linux man pages"
-HOMEPAGE="http://www.kernel.org/doc/man-pages/"
+HOMEPAGE="https://www.kernel.org/doc/man-pages/"
 SRC_URI="mirror://kernel/linux/docs/man-pages/Archive/${P}.tar.xz
 	mirror://kernel/linux/docs/man-pages/${P}.tar.xz
-	http://man7.org/linux/man-pages/download/${P}.tar.xz
 	mirror://gentoo/man-pages-gentoo-${GENTOO_PATCH}.tar.bz2
-	http://dev.gentoo.org/~cardoe/files/man-pages-gentoo-${GENTOO_PATCH}.tar.bz2"
+	https://dev.gentoo.org/~cardoe/files/man-pages-gentoo-${GENTOO_PATCH}.tar.bz2"
 
 LICENSE="man-pages GPL-2+ BSD"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux"
+KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux"
 IUSE_LINGUAS=" da de fr it ja nl pl ro ru zh_CN"
 IUSE="nls ${IUSE_LINGUAS// / linguas_}"
 RESTRICT="binchecks"
 
+# Block packages that used to install colliding man pages #341953 #548900
 RDEPEND="virtual/man
-	!<dev-libs/libaio-0.3.109-r2" #341953
+	!<sys-apps/attr-2.4.47-r2
+	!<dev-libs/libaio-0.3.109-r2"
 PDEPEND="nls? (
 	linguas_da? ( app-i18n/man-pages-da )
 	linguas_de? ( app-i18n/man-pages-de )
