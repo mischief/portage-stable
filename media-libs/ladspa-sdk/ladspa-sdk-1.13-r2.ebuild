@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=4
+EAPI=5
 
-inherit eutils multilib toolchain-funcs portability flag-o-matic
+inherit eutils multilib toolchain-funcs portability flag-o-matic multilib-minimal
 
 MY_PN=${PN/-/_}
 MY_P=${MY_PN}_${PV}
@@ -18,12 +18,14 @@ SLOT="0"
 KEYWORDS="alpha amd64 hppa ppc ppc64 sparc x86 ~amd64-fbsd ~x86-fbsd"
 IUSE=""
 
-RDEPEND=""
+RDEPEND="abi_x86_32? ( !<=app-emulation/emul-linux-x86-soundlibs-20130224-r2
+	!app-emulation/emul-linux-x86-soundlibs[-abi_x86_32(-)] )"
 DEPEND=">=sys-apps/sed-4"
 
-S="${WORKDIR}/${MY_PN}/src"
+S="${WORKDIR}/${MY_PN}"
 
 src_prepare() {
+	cd "${WORKDIR}/${MY_PN}/src"
 	epatch "${FILESDIR}"/${P}-properbuild.patch \
 		"${FILESDIR}"/${P}-asneeded.patch \
 		"${FILESDIR}"/${P}-fbsd.patch \
@@ -31,24 +33,39 @@ src_prepare() {
 
 	sed -i -e 's:-sndfile-play*:@echo Disabled \0:' \
 		makefile || die "sed makefile failed (sound playing tests)"
+
+	cd "${S}"
+	multilib_copy_sources
 }
 
-src_compile() {
+multilib_src_compile() {
+	cd src
 	emake CFLAGS="${CFLAGS}" CXXFLAGS="${CXXFLAGS}" \
 		DYNAMIC_LD_LIBS="$(dlopen_lib)" \
 		CC="$(tc-getCC)" CXX="$(tc-getCXX)" \
 		targets
 }
 
-src_install() {
+multilib_src_test() {
+	cd src
+	emake test
+}
+
+multilib_src_install() {
+	cd src
 	emake INSTALL_PLUGINS_DIR="/usr/$(get_libdir)/ladspa" \
 		DESTDIR="${D}" \
 		MKDIR_P="mkdir -p" \
 		install
+}
 
-	dohtml ../doc/*.html
+multilib_src_install_all() {
+	einstalldocs
+	dohtml doc/*.html
 
 	# Needed for apps like rezound
+	# emul-linux-soundlibs doesnt seem to install this, so keep it only for the
+	# default abi.
 	dodir /etc/env.d
 	echo "LADSPA_PATH=/usr/$(get_libdir)/ladspa" > "${D}/etc/env.d/60ladspa"
 }
