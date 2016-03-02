@@ -1,23 +1,27 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libisoburn/libisoburn-1.3.4.ebuild,v 1.8 2014/03/24 19:24:34 ago Exp $
+# $Id$
 
 EAPI=5
 
-DESCRIPTION="Enables creation and expansion of ISO-9660 filesystems on all CD/DVD media supported by libburn"
+inherit eutils
+
+DESCRIPTION="Creation/expansion of ISO-9660 filesystems on CD/DVD media supported by libburn"
 HOMEPAGE="http://libburnia-project.org/"
 SRC_URI="http://files.libburnia-project.org/releases/${P}.tar.gz"
 
 LICENSE="GPL-2 GPL-3"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ppc ppc64 x86"
-IUSE="acl cdio debug external-filters external-filters-setuid frontend-optional launch-frontend launch-frontend-setuid readline static-libs xattr zlib"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ppc ~ppc64 ~x86"
+IUSE="acl cdio debug external-filters external-filters-setuid frontend-optional
+	launch-frontend launch-frontend-setuid libedit readline static-libs xattr zlib"
 
 REQUIRED_USE="frontend-optional? ( || ( launch-frontend launch-frontend-setuid ) )"
 
-RDEPEND=">=dev-libs/libburn-1.3.4
-	>=dev-libs/libisofs-1.3.4
-	readline? ( sys-libs/readline )
+RDEPEND=">=dev-libs/libburn-1.4.2
+	>=dev-libs/libisofs-1.4.2
+	readline? ( sys-libs/readline:0= )
+	!readline? ( libedit? ( dev-libs/libedit ) )
 	acl? ( virtual/acl )
 	xattr? ( sys-apps/attr )
 	zlib? ( sys-libs/zlib )
@@ -32,6 +36,7 @@ src_configure() {
 	econf \
 	$(use_enable static-libs static) \
 	$(use_enable readline libreadline) \
+	$(usex readline --disable-libedit $(use_enable libedit)) \
 	$(use_enable acl libacl) \
 	$(use_enable xattr) \
 	$(use_enable zlib) \
@@ -57,5 +62,5 @@ src_install() {
 	dodoc xorriso/{changelog.txt,README_gnu_xorriso}
 	docinto xorriso/html
 
-	find "${D}" -name '*.la' -exec rm -rf '{}' '+' || die "la removal failed"
+	prune_libtool_files --all
 }
