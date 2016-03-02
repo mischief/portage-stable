@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -36,6 +36,8 @@ STRIP_COMPLETIONS=(
 
 src_prepare() {
 	epatch "${WORKDIR}"/bashcomp2-pre1/*.patch
+	# Bug 543100
+	epatch "${FILESDIR}"/${P}-escape-characters.patch
 }
 
 src_test() { :; } # Skip testsuite because of interactive shell wrt #477066

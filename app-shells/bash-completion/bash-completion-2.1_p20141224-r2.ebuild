@@ -1,16 +1,16 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-shells/bash-completion/bash-completion-2.1_p20141224.ebuild,v 1.3 2015/03/31 18:26:57 ulm Exp $
+# $Id$
 
 EAPI=5
 
-BASHCOMP_P=bashcomp-2.0.1
+BASHCOMP_P=bashcomp-2.0.2
 inherit versionator
 
 DESCRIPTION="Programmable Completion for bash"
 HOMEPAGE="http://bash-completion.alioth.debian.org/"
-SRC_URI="http://dev.gentoo.org/~mgorny/dist/${P}.tar.xz
-	http://dev.gentoo.org/~mgorny/dist/${BASHCOMP_P}.tar.bz2"
+SRC_URI="https://dev.gentoo.org/~mgorny/dist/${P}.tar.xz
+	https://bitbucket.org/mgorny/bashcomp2/downloads/${BASHCOMP_P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -41,6 +41,8 @@ STRIP_COMPLETIONS=(
 
 src_prepare() {
 	epatch "${WORKDIR}/${BASHCOMP_P}/${P}"-*.patch
+	# Bug 543100
+	epatch "${FILESDIR}/${PN}-2.1-escape-characters.patch"
 }
 
 src_test() { :; } # Skip testsuite because of interactive shell wrt #477066
