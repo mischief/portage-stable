@@ -1,10 +1,10 @@
-# Copyright 1999-2011 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/libchewing/libchewing-0.3.2-r1.ebuild,v 1.2 2011/01/19 15:41:31 flameeyes Exp $
+# $Id$
 
-EAPI=2
+EAPI=3
 
-inherit multilib eutils autotools toolchain-funcs
+inherit multilib toolchain-funcs eutils
 
 DESCRIPTION="Library for Chinese Phonetic input method"
 HOMEPAGE="http://chewing.csie.net/"
@@ -12,22 +12,19 @@ SRC_URI="http://chewing.csie.net/download/libchewing/${P}.tar.bz2"
 
 SLOT="0"
 LICENSE="GPL-2"
-KEYWORDS="~amd64 ~ppc ~x86"
+KEYWORDS="amd64 ppc ~ppc64 x86"
 IUSE="debug test static-libs"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	test? (
 		sys-libs/ncurses[unicode]
 		>=dev-libs/check-0.9.4
 	)"
 
 src_prepare() {
-	epatch "${FILESDIR}"/0.3.2-fix-chewing-zuin-String.patch
-	epatch "${FILESDIR}"/0.3.2-fix-crosscompile.patch
-
-	eautoreconf
+	epatch "${FILESDIR}"/${PV}-strncat-fix.patch
 }
 
 src_configure() {
@@ -45,7 +42,7 @@ src_test() {
 src_install() {
 	emake DESTDIR="${D}" install || die
 
-	find "${D}"/usr/$(get_libdir) -name '*.la' -delete || die
+	find "${ED}"usr/$(get_libdir)/ -name '*.la' -delete || die
 
 	dodoc AUTHORS ChangeLog NEWS README TODO || die
 }
