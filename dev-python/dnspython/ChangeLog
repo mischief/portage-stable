@@ -1,15 +1,13 @@
-# ChangeLog for dev-python/decorator
+# ChangeLog for dev-python/dnspython
 # Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
 # (auto-generated from git log)
 
-*decorator-4.0.2 (09 Aug 2015)
-*decorator-3.4.2 (09 Aug 2015)
-*decorator-3.4.0-r1 (09 Aug 2015)
+*dnspython-1.12.0-r1 (09 Aug 2015)
+*dnspython-1.12.0 (09 Aug 2015)
+*dnspython-1.11.1 (09 Aug 2015)
 
-  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org>
-  +decorator-3.4.0-r1.ebuild, +decorator-3.4.2.ebuild,
-  +decorator-4.0.2.ebuild, +files/decorator-3.4.0-test-failure-exit.patch,
-  +metadata.xml:
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org> +dnspython-1.11.1.ebuild,
+  +dnspython-1.12.0.ebuild, +dnspython-1.12.0-r1.ebuild, +metadata.xml:
   proj/gentoo: Initial commit
 
   This commit represents a new era for Gentoo:
@@ -42,18 +40,8 @@
   X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
   the bikeshed
 
-  16 Aug 2015; Mikle Kolyada <zlogene@gentoo.org> decorator-3.4.2.ebuild:
-  ia64 stable wrt bug #556704
-
-  Package-Manager: portage-2.2.20.1
-
-  23 Aug 2015; Jeroen Roovers <jer@gentoo.org> decorator-3.4.2.ebuild:
-  Stable for HPPA (bug #556704).
-
-  Package-Manager: portage-2.2.20.1
-
-  24 Aug 2015; Justin Lecher <jlec@gentoo.org> decorator-3.4.0-r1.ebuild,
-  decorator-3.4.2.ebuild, decorator-4.0.2.ebuild:
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> dnspython-1.11.1.ebuild,
+  dnspython-1.12.0.ebuild, dnspython-1.12.0-r1.ebuild:
   Use https by default
 
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
@@ -66,12 +54,6 @@
 
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  24 Aug 2015; Justin Lecher <jlec@gentoo.org> decorator-3.4.0-r1.ebuild,
-  decorator-3.4.2.ebuild, decorator-4.0.2.ebuild:
-  Enable https for all google URIs
-
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
-
   24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
   Revert DOCTYPE SYSTEM https changes in metadata.xml
 
@@ -80,72 +62,51 @@
 
   Bug: https://bugs.gentoo.org/552720
 
-  26 Aug 2015; Agostino Sarubbo <ago@gentoo.org> decorator-3.4.2.ebuild:
-  ppc/ppc64/sparc/x86 stable, wrt bug #556704
+  16 Sep 2015; Justin Lecher <jlec@gentoo.org> dnspython-1.12.0-r1.ebuild,
+  metadata.xml:
+  Fix dual source locations,
 
-  Package-Manager: portage-2.2.20.1
-
-  26 Aug 2015; Justin Lecher <jlec@gentoo.org> -decorator-3.4.0-r1.ebuild,
-  -files/decorator-3.4.0-test-failure-exit.patch:
-  Drop old
+  Gentoo-Bug: https://bugs.gentoo.org/show_bug.cgi?id=560628
 
   Package-Manager: portage-2.2.20.1
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-*decorator-4.0.4 (25 Sep 2015)
+*dnspython-1.12.0-r300 (30 Oct 2015)
+*dnspython-1.12.0-r200 (30 Oct 2015)
 
-  25 Sep 2015; Justin Lecher <jlec@gentoo.org> +decorator-4.0.4.ebuild:
-  Version Bump
+  30 Oct 2015; Justin Lecher <jlec@gentoo.org> dnspython-1.11.1.ebuild,
+  -dnspython-1.12.0.ebuild, -dnspython-1.12.0-r1.ebuild,
+  +dnspython-1.12.0-r200.ebuild, +dnspython-1.12.0-r300.ebuild:
+  Conver to py ABI slotted ebuilds
 
-  Package-Manager: portage-2.2.21
+  Gentoo-Bug: https://bugs.gentoo.org/show_bug.cgi?id=484954
+
+  Package-Manager: portage-2.2.23
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  25 Sep 2015; Agostino Sarubbo <ago@gentoo.org> decorator-4.0.2.ebuild:
-  amd64 stable wrt bug #561434
+  16 Nov 2015; Agostino Sarubbo <ago@gentoo.org> dnspython-1.12.0-r200.ebuild,
+  dnspython-1.12.0-r300.ebuild:
+  amd64 stable wrt bug #565742
 
   Package-Manager: portage-2.2.20.1
   RepoMan-Options: --include-arches="amd64"
 
-  25 Sep 2015; Agostino Sarubbo <ago@gentoo.org> decorator-4.0.2.ebuild:
-  x86 stable wrt bug #561434
+  16 Nov 2015; Agostino Sarubbo <ago@gentoo.org> dnspython-1.12.0-r200.ebuild,
+  dnspython-1.12.0-r300.ebuild:
+  x86 stable wrt bug #565742
 
   Package-Manager: portage-2.2.20.1
   RepoMan-Options: --include-arches="x86"
 
-  25 Sep 2015; Patrice Clement <monsieurp@gentoo.org> decorator-4.0.2.ebuild:
-  Stable for all arches using the ALLARCHES policy. Fixes bug 561434.
+  11 Jan 2016; Justin Lecher <jlec@gentoo.org> dnspython-1.12.0-r200.ebuild,
+  dnspython-1.12.0-r300.ebuild:
+  Stable under ALLARCHES policy
 
-  Package-Manager: portage-2.2.18
-  Signed-off-by: Patrice Clement <monsieurp@gentoo.org>
-
-  25 Sep 2015; Patrice Clement <monsieurp@gentoo.org> -decorator-3.4.2.ebuild:
-  Clean up old.
-
-  Package-Manager: portage-2.2.18
-  Signed-off-by: Patrice Clement <monsieurp@gentoo.org>
-
-  01 Oct 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
-  Add missing remote-id type=github
-
+  Package-Manager: portage-2.2.26
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  15 Oct 2015; Justin Lecher <jlec@gentoo.org> decorator-4.0.4.ebuild,
-  metadata.xml:
-  Add python3.5 support
-
-  Package-Manager: portage-2.2.23
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
-
-  19 Oct 2015; Justin Lecher <jlec@gentoo.org> decorator-4.0.4.ebuild:
-  Add pypy* support
-
-  Package-Manager: portage-2.2.23
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
-
-*decorator-4.0.6 (13 Dec 2015)
-
-  13 Dec 2015; Justin Lecher <jlec@gentoo.org> +decorator-4.0.6.ebuild:
-  Version Bump
+  11 Jan 2016; Justin Lecher <jlec@gentoo.org> -dnspython-1.11.1.ebuild:
+  Drop old
 
   Package-Manager: portage-2.2.26
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
@@ -159,16 +120,16 @@
   24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
   Set appropriate maintainer types in metadata.xml (GLEP 67)
 
-*decorator-4.0.9 (08 Feb 2016)
+  28 Feb 2016; Matthew Thode <prometheanfire@gentoo.org>
+  dnspython-1.12.0-r200.ebuild:
+  keywording arm64
 
-  08 Feb 2016; Justin Lecher <jlec@gentoo.org> +decorator-4.0.9.ebuild:
-  Version Bump
+  merged on X-C1
 
-  Package-Manager: portage-2.2.27
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+  Package-Manager: portage-2.2.26
 
   28 Feb 2016; Matthew Thode <prometheanfire@gentoo.org>
-  decorator-4.0.6.ebuild:
+  dnspython-1.12.0-r300.ebuild:
   keywording arm64
 
   merged on X-C1
