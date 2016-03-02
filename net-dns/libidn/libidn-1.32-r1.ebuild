@@ -1,17 +1,17 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/net-dns/libidn/libidn-1.29.ebuild,v 1.11 2014/11/10 19:28:32 grobian Exp $
+# $Id$
 
 EAPI=5
 inherit elisp-common java-pkg-opt-2 mono-env multilib-minimal
 
 DESCRIPTION="Internationalized Domain Names (IDN) implementation"
-HOMEPAGE="http://www.gnu.org/software/libidn/"
+HOMEPAGE="https://www.gnu.org/software/libidn/"
 SRC_URI="mirror://gnu/libidn/${P}.tar.gz"
 
 LICENSE="GPL-2 GPL-3 LGPL-3 java? ( Apache-2.0 )"
 SLOT="0"
-KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x86-freebsd ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 IUSE="doc emacs java mono nls static-libs"
 
 DOCS=( AUTHORS ChangeLog FAQ NEWS README THANKS TODO )
@@ -21,10 +21,7 @@ COMMON_DEPEND="
 "
 DEPEND="${COMMON_DEPEND}
 	nls? ( >=sys-devel/gettext-0.17 )
-	java? (
-		>=virtual/jdk-1.5
-		doc? ( dev-java/gjdoc )
-	)
+	java? ( >=virtual/jdk-1.5 )
 "
 RDEPEND="${COMMON_DEPEND}
 	nls? ( >=virtual/libintl-0-r1[${MULTILIB_USEDEP}] )
@@ -46,7 +43,7 @@ src_prepare() {
 }
 
 multilib_src_configure() {
-	ECONF_SOURCE=${S} \
+	ECONF_SOURCE=${S} GJDOC=javadoc \
 	econf \
 		$(multilib_native_use_enable java) \
 		$(multilib_native_use_enable mono csharp mono) \
@@ -63,21 +60,24 @@ multilib_src_configure() {
 multilib_src_compile() {
 	default
 
-	if multilib_is_native_abi && use emacs; then
-		elisp-compile "${S}"/src/*.el || die
+	if multilib_is_native_abi; then
+		use emacs && elisp-compile "${S}"/src/*.el
+		use java && use doc && emake -C java/src/main/java javadoc
 	fi
+}
+
+multilib_src_test() {
+	# only run libidn specific tests and not gnulib tests (bug #539356)
+	emake -C tests check
 }
 
 multilib_src_install() {
 	emake DESTDIR="${D}" install
 
 	if multilib_is_native_abi && use java; then
-		java-pkg_newjar java/${P}.jar ${PN}.jar || die
+		java-pkg_newjar java/${P}.jar ${PN}.jar
 		rm -r "${ED}"/usr/share/java || die
-
-		if use doc ; then
-			java-pkg_dojavadoc doc/java
-		fi
+		use doc && java-pkg_dojavadoc "${S}"/doc/java
 	fi
 }
 
