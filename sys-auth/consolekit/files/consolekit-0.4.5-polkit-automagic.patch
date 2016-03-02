@@ -1,9 +1,8 @@
-Automagic polkit
+http://bugs.freedesktop.org/show_bug.cgi?id=47587
 
----
 --- configure.ac
 +++ configure.ac
-@@ -55,10 +55,21 @@
+@@ -56,10 +56,21 @@
    gthread-2.0 >= $GLIB_REQUIRED_VERSION
  )
  
