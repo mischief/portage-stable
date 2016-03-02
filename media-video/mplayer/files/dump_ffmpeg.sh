@@ -6,7 +6,7 @@ SYSTEM_FFMPEG_DIR=${EPREFIX}/usr/include
 
 # Move directories
 
-[ -d "${FFMPEG_DIR}/.git" ] && mv "${FFMPEG_DIR}" "${FFMPEG_MOVED_DIR}"
+[ -d "${FFMPEG_DIR}" ] && mv "${FFMPEG_DIR}" "${FFMPEG_MOVED_DIR}"
 [ -d "${FFMPEG_MOVED_DIR}" ] || exit 1
 [ -d "${FFMPEG_DIR}" ] || mkdir "${FFMPEG_DIR}"
 
@@ -60,8 +60,7 @@ move_file() {
 }
 
 # HEADERS (order matters for the consistency checks: leaves come first)
-FILES=" libavutil/x86_cpu.h \
-        libavformat/internal.h "
+FILES="libavutil/wchar_filename.h libavformat/os_support.h libavformat/internal.h libavutil/x86/asm.h"
 # Files that are sed'ed but not compiled, used to check for availability of
 # some codecs
 FILES="${FILES} libavcodec/allcodecs.c libavformat/allformats.c libavfilter/allfilters.c"

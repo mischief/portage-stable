@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/media-video/mplayer/mplayer-1.0_rc4_p20120405.ebuild,v 1.3 2012/04/05 18:42:48 vapier Exp $
+# $Id$
 
-EAPI=4
+EAPI=5
 
 EGIT_REPO_URI="git://git.videolan.org/ffmpeg.git"
 ESVN_REPO_URI="svn://svn.mplayerhq.hu/mplayer/trunk"
@@ -10,16 +10,15 @@ ESVN_REPO_URI="svn://svn.mplayerhq.hu/mplayer/trunk"
 
 inherit toolchain-funcs eutils flag-o-matic multilib base ${SVN_ECLASS}
 
-IUSE="3dnow 3dnowext +a52 aalib +alsa altivec aqua +ass bidi bindist bl bluray
+IUSE="cpu_flags_x86_3dnow cpu_flags_x86_3dnowext a52 aalib +alsa altivec aqua bidi bl bluray
 bs2b cddb +cdio cdparanoia cpudetection debug dga
-directfb doc +dts +dv dvb +dvd +dvdnav dxr3 +enca +encode faac +faad fbcon
+directfb doc dts dv dvb +dvd +dvdnav +enca +encode faac faad fbcon
 ftp gif ggi gsm +iconv ipv6 jack joystick jpeg jpeg2k kernel_linux ladspa
-libcaca libmpeg2 lirc +live lzo mad md5sum +mmx mmxext mng +mp3 nas
-+network nut openal +opengl +osdmenu oss png pnm pulseaudio pvr +quicktime
-radio +rar +real +rtc rtmp samba +shm sdl +speex sse sse2 ssse3
-tga +theora +tremor +truetype +toolame +twolame +unicode v4l vdpau vidix
-+vorbis win32codecs +X +x264 xanim xinerama +xscreensaver +xv +xvid xvmc
-zoran"
++libass libcaca libmpeg2 lirc live lzo mad md5sum +cpu_flags_x86_mmx cpu_flags_x86_mmxext mng mp3 nas
++network nut openal opengl +osdmenu oss png pnm pulseaudio pvr
+radio rar rtc rtmp samba selinux +shm sdl speex cpu_flags_x86_sse cpu_flags_x86_sse2 cpu_flags_x86_ssse3
+tga theora tremor +truetype toolame twolame +unicode v4l vdpau vidix
+vorbis +X x264 xanim xinerama +xscreensaver +xv xvid xvmc zoran"
 
 VIDEO_CARDS="s3virge mga tdfx"
 for x in ${VIDEO_CARDS}; do
@@ -33,6 +32,10 @@ FONT_URI="
 "
 if [[ ${PV} == *9999* ]]; then
 	RELEASE_URI=""
+elif [ "${PV%_rc*}" = "${PV}" -a "${PV%_pre*}" = "${PV}" ]; then
+	MY_P="MPlayer-${PV}"
+	S="${WORKDIR}/${MY_P}"
+	RELEASE_URI="mirror://mplayer/releases/${MY_P}.tar.xz"
 else
 	RELEASE_URI="mirror://gentoo/${P}.tar.xz"
 fi
@@ -54,23 +57,17 @@ X_RDEPS="
 # Rar: althrought -gpl version is nice, it cant do most functions normal rars can
 #	nemesi? ( net-libs/libnemesi )
 RDEPEND+="
-	sys-libs/ncurses
+	sys-libs/ncurses:0=
 	app-arch/bzip2
 	sys-libs/zlib
-	>=media-video/ffmpeg-0.10.2
-	!bindist? (
-		x86? (
-			win32codecs? ( media-libs/win32codecs )
-		)
-	)
+	>=media-video/ffmpeg-2.6:0=[vdpau?]
 	a52? ( media-libs/a52dec )
 	aalib? ( media-libs/aalib )
 	alsa? ( media-libs/alsa-lib )
-	ass? ( >=media-libs/libass-0.9.10[enca?] )
 	bidi? ( dev-libs/fribidi )
 	bluray? ( >=media-libs/libbluray-0.2.1 )
 	bs2b? ( media-libs/libbs2b )
-	cdio? ( dev-libs/libcdio )
+	cdio? ( dev-libs/libcdio dev-libs/libcdio-paranoia )
 	cdparanoia? ( !cdio? ( media-sound/cdparanoia ) )
 	dga? ( x11-libs/libXxf86dga )
 	directfb? ( dev-libs/DirectFB )
@@ -84,7 +81,7 @@ RDEPEND+="
 		twolame? ( media-sound/twolame )
 		faac? ( media-libs/faac )
 		mp3? ( media-sound/lame )
-		x264? ( >=media-libs/x264-0.0.20100423 )
+		x264? ( >=media-libs/x264-0.0.20100423:= )
 		xvid? ( media-libs/xvid )
 	)
 	enca? ( app-i18n/enca )
@@ -94,22 +91,23 @@ RDEPEND+="
 	gsm? ( media-sound/gsm )
 	iconv? ( virtual/libiconv )
 	jack? ( media-sound/jack-audio-connection-kit )
-	jpeg? ( virtual/jpeg )
-	jpeg2k? ( media-libs/openjpeg )
+	jpeg? ( virtual/jpeg:0 )
+	jpeg2k? ( media-libs/openjpeg:0 )
 	ladspa? ( media-libs/ladspa-sdk )
+	libass? ( >=media-libs/libass-0.9.10:= )
 	libcaca? ( media-libs/libcaca )
 	libmpeg2? ( media-libs/libmpeg2 )
 	lirc? ( app-misc/lirc )
 	live? ( media-plugins/live )
 	lzo? ( >=dev-libs/lzo-2 )
 	mad? ( media-libs/libmad )
-	mng? ( media-libs/libmng )
+	mng? ( media-libs/libmng:= )
 	mp3? ( media-sound/mpg123 )
 	nas? ( media-libs/nas )
 	nut? ( >=media-libs/libnut-661 )
 	openal? ( media-libs/openal )
 	opengl? ( virtual/opengl )
-	png? ( media-libs/libpng )
+	png? ( media-libs/libpng:0= )
 	pnm? ( media-libs/netpbm )
 	pulseaudio? ( media-sound/pulseaudio )
 	rar? (
@@ -123,9 +121,10 @@ RDEPEND+="
 	sdl? ( media-libs/libsdl )
 	speex? ( media-libs/speex )
 	theora? ( media-libs/libtheora[encode?] )
+	tremor? ( media-libs/tremor )
 	truetype? ( ${FONT_RDEPS} )
 	vdpau? ( x11-libs/libvdpau )
-	vorbis? ( media-libs/libvorbis )
+	vorbis? ( !tremor? ( media-libs/libvorbis ) )
 	X? ( ${X_RDEPS}	)
 	xanim? ( media-video/xanim )
 	xinerama? ( x11-libs/libXinerama )
@@ -140,9 +139,8 @@ X_DEPS="
 "
 ASM_DEP="dev-lang/yasm"
 DEPEND="${RDEPEND}
-	dev-util/pkgconfig
+	virtual/pkgconfig
 	dga? ( x11-proto/xf86dgaproto )
-	dxr3? ( media-video/em8300-libraries )
 	X? ( ${X_DEPS} )
 	xinerama? ( x11-proto/xineramaproto )
 	xscreensaver? ( x11-proto/scrnsaverproto )
@@ -154,43 +152,45 @@ DEPEND="${RDEPEND}
 	x86? ( ${ASM_DEP} )
 	x86-fbsd? ( ${ASM_DEP} )
 "
+RDEPEND+="
+	selinux? ( sec-policy/selinux-mplayer )
+"
 
 SLOT="0"
 LICENSE="GPL-2"
 if [[ ${PV} != *9999* ]]; then
-	KEYWORDS="amd64 ~hppa ~x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ppc ~ppc64 ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~x86-solaris"
 else
 	KEYWORDS=""
 fi
 
-# faac codecs are nonfree, win32codecs are nonfree
+# faac codecs are nonfree
 # libcdio support: prefer libcdio over cdparanoia and don't check for cddb w/cdio
 # dvd navigation requires dvd read support
 # ass and freetype font require iconv and ass requires freetype fonts
 # unicode transformations are usefull only with iconv
-# libvorbis require external tremor to work
 # radio requires oss or alsa backend
 # xvmc requires xvideo support
-REQUIRED_USE="bindist? ( !faac !win32codecs )
-	dvdnav? ( dvd )
-	ass? ( truetype )
-	truetype? ( iconv )
-	dxr3? ( X )
-	ggi? ( X )
-	xinerama? ( X )
+REQUIRED_USE="
 	dga? ( X )
+	dvdnav? ( dvd )
+	enca? ( iconv )
+	ggi? ( X )
+	libass? ( truetype )
 	opengl? ( X )
 	osdmenu? ( X )
+	truetype? ( iconv )
 	vdpau? ( X )
 	vidix? ( X )
+	xinerama? ( X )
 	xscreensaver? ( X )
 	xv? ( X )
 	xvmc? ( xv )"
+RESTRICT="faac? ( bindist )"
 
 PATCHES=(
-	"${FILESDIR}/ffmpeg.patch"
-	"${FILESDIR}/ffmpeg2.patch"
-	"${FILESDIR}/${PN}-1.0_rc4-pkg-config.patch"
+	# Work with pulseaudio-6, bug #549680, https://trac.mplayerhq.hu/ticket/2241
+	"${FILESDIR}"/${PN}-1.2_pre20150214-pulseaudio-6.0.patch
 )
 
 pkg_setup() {
@@ -213,6 +213,12 @@ pkg_setup() {
 		ewarn "mplayer for this system. Also, if your compile fails, try"
 		ewarn "disabling this use flag."
 	fi
+
+	if has_version 'media-video/libav' ; then
+		ewarn "Please note that upstream uses media-video/ffmpeg."
+		ewarn "media-video/libav should be fine in theory but if you"
+		ewarn "experience any problem, try to move to media-video/ffmpeg."
+	fi
 }
 
 src_unpack() {
@@ -221,12 +227,15 @@ src_unpack() {
 		cd "${WORKDIR}"
 		rm -rf "${WORKDIR}/${P}/ffmpeg/"
 		( S="${WORKDIR}/${P}/ffmpeg/" git-2_src_unpack )
+	else
+		unpack ${A}
+	fi
+
+	if [[ ${PV} = *9999* ]] || [[ "${PV%_rc*}" = "${PV}" ]]; then
 		cd "${S}"
 		cp "${FILESDIR}/dump_ffmpeg.sh" . || die
 		chmod +x dump_ffmpeg.sh
 		./dump_ffmpeg.sh || die
-	else
-		unpack ${A}
 	fi
 
 	if ! use truetype; then
@@ -243,14 +252,25 @@ src_prepare() {
 		subversion_wc_info
 		printf "${ESVN_WC_REVISION}" > $svf
 	fi
-	[ -f "$svf" ] || die "Missing ${svf}. Did you generate your snapshot with prepare_mplayer.sh?"
-	local sv=$(<$svf)
-	printf "SVN-r${sv} (Gentoo)" > VERSION
+	if [ ! -f VERSION ] ; then
+		[ -f "$svf" ] || die "Missing ${svf}. Did you generate your snapshot with prepare_mplayer.sh?"
+		local sv=$(<$svf)
+		printf "SVN-r${sv} (Gentoo)" > VERSION
+	fi
 
 	# fix path to bash executable in configure scripts
 	sed -i -e "1c\#!${EPREFIX}/bin/bash" configure version.sh || die
 
 	base_src_prepare
+
+	# Use sane default for >=virtual/udev-197
+	sed -i -e '/default_dvd_device/s:/dev/dvd:/dev/cdrom:' configure || die
+
+	if has_version '>=media-video/ffmpeg-2.9'; then
+		epatch "${FILESDIR}/${PN}-1.2_pre20150730-chan.patch"
+		epatch "${FILESDIR}/${PN}-1.2-get_buffer.patch"
+		epatch "${FILESDIR}/${PN}-1.2_pre20150730-encode.patch"
+	fi
 }
 
 src_configure() {
@@ -259,6 +279,7 @@ src_configure() {
 
 	# set LINGUAS
 	[[ -n $LINGUAS ]] && LINGUAS="${LINGUAS/da/dk}"
+	[[ -n $LINGUAS ]] && LINGUAS="${LINGUAS/zh/zh_CN}" #482968
 
 	# mplayer ebuild uses "use foo || --disable-foo" to forcibly disable
 	# compilation in almost every situation. The reason for this is
@@ -271,21 +292,26 @@ src_configure() {
 	# disable svga since we don't want it
 	# disable arts since we don't have kde3
 	# always disable internal ass
+	# disable opus and ilbc since it only controls support in internal
+	#         ffmpeg which we do not use
 	myconf+="
 		--disable-svga --disable-svgalib_helper
 		--disable-ass-internal
 		--disable-arts
 		--disable-kai
+		--disable-libopus
+		--disable-libilbc
 		$(use_enable network networking)
 		$(use_enable joystick)
 	"
-	uses="ass bl bluray enca ftp rtc" # nemesi <- not working with in-tree ebuild
+	uses="bl bluray enca ftp rtc" # nemesi <- not working with in-tree ebuild
 	myconf+=" --disable-nemesi" # nemesi automagic disable
 	for i in ${uses}; do
 		use ${i} || myconf+=" --disable-${i}"
 	done
 	use bidi  || myconf+=" --disable-fribidi"
 	use ipv6  || myconf+=" --disable-inet6"
+	use libass || myconf+=" --disable-ass"
 	use nut   || myconf+=" --disable-libnut"
 	use rar   || myconf+=" --disable-unrarexec"
 	use samba || myconf+=" --disable-smb"
@@ -307,9 +333,6 @@ src_configure() {
 	#
 	# dvdread - accessing a DVD
 	# dvdnav - navigation of menus
-	#
-	# use external libdvdcss, dvdread and dvdnav
-	myconf+=" --disable-dvdread-internal --disable-libdvdcss-internal"
 	use dvd || myconf+=" --disable-dvdread"
 	use dvdnav || myconf+=" --disable-dvdnav"
 
@@ -365,38 +388,23 @@ src_configure() {
 	myconf+=" --disable-musepack" # Use internal musepack codecs for SV7 and SV8 support
 	myconf+=" --disable-libmpeg2-internal" # always use system media-libs/libmpeg2
 	use dts || myconf+=" --disable-libdca"
-	# Disable internal mp3lib, bug #384849
-	# Samuli Suominen: Looks like MPlayer in Portage is using internal mp3lib by
-	# default, where as mpg123 upstream has incorporated all the optimizations
-	# from mplayer's mp3lib	in libmpg123 and more.
-	# It makes very little sense to use the internal copy as default anymore.
-	myconf+=" --disable-mp3lib"
 	if ! use mp3; then
 		myconf+="
 			--disable-mp3lame
 			--disable-mpg123
 		"
 	fi
-	uses="a52 bs2b dv gsm lzo rtmp"
+	uses="a52 bs2b dv gsm lzo rtmp vorbis"
 	for i in ${uses}; do
 		use ${i} || myconf+=" --disable-lib${i}"
 	done
 
-	uses="faad gif jpeg libmpeg2 live mad mng png pnm speex tga theora xanim"
+	uses="faad gif jpeg libmpeg2 live mad mng png pnm speex tga theora tremor xanim"
 	for i in ${uses}; do
 		use ${i} || myconf+=" --disable-${i}"
 	done
 	use jpeg2k || myconf+=" --disable-libopenjpeg"
-	if use vorbis || use tremor; then
-		use tremor || myconf+=" --disable-tremor-internal"
-		use vorbis || myconf+=" --disable-libvorbis"
-	else
-		myconf+="
-			--disable-tremor-internal
-			--disable-tremor
-			--disable-libvorbis
-		"
-	fi
+
 	# Encoding
 	uses="faac x264 xvid toolame twolame"
 	if use encode; then
@@ -414,29 +422,7 @@ src_configure() {
 	#################
 	# Binary codecs #
 	#################
-	# bug 213836
-	if ! use x86 || ! use win32codecs; then
-		use quicktime || myconf+=" --disable-qtx"
-	fi
-
-	######################
-	# RealPlayer support #
-	######################
-	# Realplayer support shows up in four places:
-	# - libavcodec (internal)
-	# - win32codecs
-	# - realcodecs (win32codecs libs)
-	# - realcodecs (realplayer libs)
-
-	# internal
-	use real || myconf+=" --disable-real"
-
-	# Real binary codec support only available on x86, amd64
-	if use real; then
-		use x86 && myconf+=" --codecsdir=/opt/RealPlayer/codecs"
-		use amd64 && myconf+=" --codecsdir=/usr/$(get_libdir)/codecs"
-	fi
-	myconf+=" $(use_enable win32codecs win32dll)"
+	myconf+=" --disable-qtx --disable-real --disable-win32dll"
 
 	################
 	# Video Output #
@@ -490,7 +476,12 @@ src_configure() {
 	# Platform specific flags, hardcoded on amd64 (see below)
 	use cpudetection && myconf+=" --enable-runtime-cpudetection"
 
-	uses="3dnow 3dnowext altivec mmx mmxext shm sse sse2 ssse3"
+	uses="3dnow 3dnowext mmx mmxext sse sse2 ssse3"
+	for i in ${uses}; do
+		myconf+=" $(use_enable cpu_flags_x86_${i} ${i})"
+	done
+
+	uses="altivec shm"
 	for i in ${uses}; do
 		myconf+=" $(use_enable ${i})"
 	done
@@ -507,7 +498,7 @@ src_configure() {
 	###########################
 	myconf+=" --disable-gui"
 	myconf+=" --disable-vesa"
-	uses="dxr3 ggi vdpau xinerama xv"
+	uses="ggi vdpau xinerama xv"
 	for i in ${uses}; do
 		use ${i} || myconf+=" --disable-${i}"
 	done
@@ -533,7 +524,6 @@ src_configure() {
 		"
 	fi
 
-	tc-export PKG_CONFIG
 	./configure \
 		--cc="$(tc-getCC)" \
 		--host-cc="$(tc-getBUILD_CC)" \
@@ -552,7 +542,6 @@ src_compile() {
 	# Build only user-requested docs if they're available.
 	if use doc ; then
 		# select available languages from $LINGUAS
-		LINGUAS=${LINGUAS/zh/zh_CN}
 		local ALLOWED_LINGUAS="cs de en es fr hu it pl ru zh_CN"
 		local BUILT_DOCS=""
 		for i in ${LINGUAS} ; do
@@ -582,10 +571,6 @@ src_install() {
 	dodoc DOCS/tech/{*.txt,MAINTAINERS,mpsub.sub,playtree,TODO,wishlist}
 	docinto TOOLS/
 	dodoc -r TOOLS
-	if use real; then
-		docinto tech/realcodecs/
-		dodoc DOCS/tech/realcodecs/*
-	fi
 	docinto tech/mirrors/
 	dodoc DOCS/tech/mirrors/*
 
