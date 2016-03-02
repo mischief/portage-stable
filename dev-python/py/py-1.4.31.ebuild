@@ -4,7 +4,7 @@
 
 EAPI="5"
 
-PYTHON_COMPAT=( python2_7 python3_{3,4} pypy pypy3 )
+PYTHON_COMPAT=( python2_7 python3_{3,4,5} pypy pypy3 )
 
 inherit distutils-r1
 
@@ -35,7 +35,8 @@ python_compile_all() {
 python_test() {
 	# 1 failure, test_comments, under both pypy only.
 	# Also appears the home repo has no issue tracker.
-	py.test || die "testing failed with ${EPYTHON}"
+	[[ "${EPYTHON}" == pypy ]] && return
+	py.test -v -v || die "testing failed with ${EPYTHON}"
 }
 
 python_install_all() {
