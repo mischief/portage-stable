@@ -1,16 +1,17 @@
-# ChangeLog for dev-python/paramiko
+# ChangeLog for dev-python/pexpect
 # Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
 # (auto-generated from git log)
 
-*paramiko-1.15.2 (09 Aug 2015)
-*paramiko-1.15.1-r1 (09 Aug 2015)
-*paramiko-1.13.0 (09 Aug 2015)
-*paramiko-1.12.2 (09 Aug 2015)
-*paramiko-1.10.1 (09 Aug 2015)
+*pexpect-3.3 (09 Aug 2015)
+*pexpect-3.2 (09 Aug 2015)
+*pexpect-3.1 (09 Aug 2015)
+*pexpect-3.0 (09 Aug 2015)
+*pexpect-2.4-r1 (09 Aug 2015)
+*pexpect-2.4 (09 Aug 2015)
 
   09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org> +metadata.xml,
-  +paramiko-1.10.1.ebuild, +paramiko-1.12.2.ebuild, +paramiko-1.13.0.ebuild,
-  +paramiko-1.15.1-r1.ebuild, +paramiko-1.15.2.ebuild:
+  +pexpect-2.4.ebuild, +pexpect-2.4-r1.ebuild, +pexpect-3.0.ebuild,
+  +pexpect-3.1.ebuild, +pexpect-3.2.ebuild, +pexpect-3.3.ebuild:
   proj/gentoo: Initial commit
 
   This commit represents a new era for Gentoo:
@@ -43,9 +44,9 @@
   X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
   the bikeshed
 
-  24 Aug 2015; Justin Lecher <jlec@gentoo.org> paramiko-1.10.1.ebuild,
-  paramiko-1.12.2.ebuild, paramiko-1.13.0.ebuild, paramiko-1.15.1-r1.ebuild,
-  paramiko-1.15.2.ebuild:
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> pexpect-2.4.ebuild,
+  pexpect-2.4-r1.ebuild, pexpect-3.0.ebuild, pexpect-3.1.ebuild,
+  pexpect-3.2.ebuild, pexpect-3.3.ebuild:
   Use https by default
 
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
@@ -66,60 +67,72 @@
 
   Bug: https://bugs.gentoo.org/552720
 
-  11 Oct 2015; Justin Lecher <jlec@gentoo.org> -paramiko-1.10.1.ebuild,
-  -paramiko-1.12.2.ebuild, -paramiko-1.13.0.ebuild:
+  11 Sep 2015; Manuel Rüger <mrueg@gentoo.org> -pexpect-3.1.ebuild,
+  -pexpect-3.2.ebuild:
+  Remove old
+
+  Package-Manager: portage-2.2.20.1
+
+  01 Oct 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Add missing remote-id type=sourceforge
+
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  10 Oct 2015; Justin Lecher <jlec@gentoo.org> metadata.xml,
+  -pexpect-2.4.ebuild, -pexpect-2.4-r1.ebuild, -pexpect-3.0.ebuild:
   Drop old
 
+  Gentoo-Bug: https://bugs.gentoo.org/show_bug.cgi?id=539444
+
   Package-Manager: portage-2.2.23
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-*paramiko-1.15.3 (11 Oct 2015)
+*pexpect-4.0.1 (11 Oct 2015)
 
-  11 Oct 2015; Justin Lecher <jlec@gentoo.org> +paramiko-1.15.3.ebuild:
+  11 Oct 2015; Justin Lecher <jlec@gentoo.org> +pexpect-4.0.1.ebuild:
   Version Bump
 
   Package-Manager: portage-2.2.23
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-*paramiko-1.15.4 (03 Nov 2015)
+*pexpect-4.0.1-r1 (11 Oct 2015)
 
-  03 Nov 2015; Justin Lecher <jlec@gentoo.org> +paramiko-1.15.4.ebuild:
-  Version Bump
-
-  Package-Manager: portage-2.2.23
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
-
-*paramiko-1.16.0 (06 Nov 2015)
-
-  06 Nov 2015; Justin Lecher <jlec@gentoo.org> +paramiko-1.16.0.ebuild:
-  Version Bump
+  11 Oct 2015; Justin Lecher <jlec@gentoo.org> +pexpect-4.0.1-r1.ebuild:
+  Add python3.5 support
 
   Package-Manager: portage-2.2.23
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  11 Nov 2015; Justin Lecher <jlec@gentoo.org> paramiko-1.15.1-r1.ebuild,
-  paramiko-1.15.2.ebuild, paramiko-1.15.3.ebuild, paramiko-1.15.4.ebuild,
-  paramiko-1.16.0.ebuild:
+  12 Oct 2015; Jeroen Roovers <jer@gentoo.org> pexpect-4.0.1.ebuild:
+  Mark ~hppa (bug #562748).
+
+  Package-Manager: portage-2.2.23
+  RepoMan-Options: --ignore-arches
+
+  14 Oct 2015; Michał Górny <mgorny@gentoo.org> pexpect-4.0.1.ebuild,
+  -pexpect-4.0.1-r1.ebuild:
+  dev-python/*: Restore keywords and un-revbump for py3.5
+
+  Restore keywords that were removed unnecessarily, and collapse
+  unnecessary revbumps on packages with added python3.5 support.
+
+  14 Oct 2015; Michał Górny <mgorny@gentoo.org> pexpect-3.3.ebuild:
+  enable python3.5 on v3.3
+
+  Enable python3.5 support on the older version since it has more keywords
+  compared to v4.0.1. Tests confirmed to pass.
+
+  14 Oct 2015; Justin Lecher <jlec@gentoo.org> pexpect-4.0.1.ebuild:
+  Rekeyword according to old KEYWORDS
+
+  Package-Manager: portage-2.2.23
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  11 Nov 2015; Justin Lecher <jlec@gentoo.org> pexpect-3.3.ebuild,
+  pexpect-4.0.1.ebuild:
   Depend on threading support in python
 
   Package-Manager: portage-2.2.23
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
-
-  20 Nov 2015; Mike Frysinger <vapier@gentoo.org> paramiko-1.16.0.ebuild:
-  add arm64/m68k love
-
-  14 Jan 2016; Agostino Sarubbo <ago@gentoo.org> paramiko-1.16.0.ebuild:
-  alpha/amd64/arm/hppa/ia64/ppc64/ppc/sparc/x86 stable, (ALLARCHES policy) wrt
-  bug #571628
-
-  Package-Manager: portage-2.2.26
-  Signed-off-by: Agostino Sarubbo <ago@gentoo.org>
-
-  15 Jan 2016; Justin Lecher <jlec@gentoo.org> -paramiko-1.15.2.ebuild,
-  -paramiko-1.15.3.ebuild, -paramiko-1.15.4.ebuild:
-  Drop old
-
-  Package-Manager: portage-2.2.26
   Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
   24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
@@ -130,18 +143,4 @@
 
   24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
   Set appropriate maintainer types in metadata.xml (GLEP 67)
-
-*paramiko-9999 (26 Feb 2016)
-
-  26 Feb 2016; Justin Lecher <jlec@gentoo.org>
-  +files/paramiko-1.16.0-install_requires.patch, paramiko-1.16.0.ebuild,
-  +paramiko-9999.ebuild:
-  Fix broken whitespacing in version declaration of deps
-
-  * Add live version
-
-  Gentoo-Bug: https://bugs.gentoo.org/show_bug.cgi?id=575664
-
-  Package-Manager: portage-2.2.27
-  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
