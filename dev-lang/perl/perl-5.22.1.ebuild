@@ -6,9 +6,9 @@ EAPI=5
 
 inherit eutils alternatives flag-o-matic toolchain-funcs multilib multiprocessing
 
-PATCH_VER=2
+PATCH_VER=1
 
-PERL_OLDVERSEN="5.20.0 5.20.1"
+PERL_OLDVERSEN="5.22.0"
 MODULE_AUTHOR=SHAY
 
 SHORT_PV="${PV%.*}"
@@ -27,7 +27,7 @@ HOMEPAGE="http://www.perl.org/"
 
 LICENSE="|| ( Artistic GPL-1+ )"
 SLOT="0/${SHORT_PV}"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~amd64-fbsd ~amd64-linux ~arm ~arm64 ~hppa ~hppa-hpux ~ia64 ~ia64-hpux ~ia64-linux ~m68k ~m68k-mint ~mips ~ppc ~ppc64 ~ppc-aix ~ppc-macos ~s390 ~sh ~sparc ~sparc64-solaris ~sparc-solaris ~x64-freebsd ~x64-macos ~x64-solaris ~x86 ~x86-fbsd ~x86-freebsd ~x86-interix ~x86-linux ~x86-macos ~x86-solaris"
 IUSE="berkdb debug doc gdbm ithreads"
 
 RDEPEND="
@@ -43,29 +43,28 @@ PDEPEND="
 	>=app-admin/perl-cleaner-2.5
 	>=virtual/perl-File-Temp-0.230.400-r2
 	>=virtual/perl-Data-Dumper-2.154.0
+	virtual/perl-Test-Harness
 "
 # bug 390719, bug 523624
+# virtual/perl-Test-Harness is here for the bundled ExtUtils::MakeMaker
 
 S="${WORKDIR}/${MY_P}"
 
 dual_scripts() {
-	src_remove_dual      perl-core/Archive-Tar        1.960.0      ptar ptardiff ptargrep
-	src_remove_dual      perl-core/Digest-SHA         5.880.0      shasum
-	src_remove_dual      perl-core/CPAN               2.50.0      cpan
-	src_remove_dual      perl-core/Encode             2.600.0      enc2xs piconv
-	src_remove_dual      perl-core/ExtUtils-MakeMaker 6.980.0      instmodsh
-	src_remove_dual      perl-core/ExtUtils-ParseXS   3.240.0      xsubpp
-	src_remove_dual      perl-core/IO-Compress        2.64.0       zipdetails
-	src_remove_dual      perl-core/JSON-PP            2.272.30      json_pp
-	src_remove_dual      perl-core/Module-CoreList    5.201.502.140 corelist
-	src_remove_dual      perl-core/Pod-Parser         1.620.0      pod2usage podchecker podselect
-	src_remove_dual      perl-core/Pod-Perldoc        3.230.0      perldoc
-	src_remove_dual      perl-core/Test-Harness       3.330.0      prove
-	src_remove_dual      perl-core/podlators          2.5.3        pod2man pod2text
-	src_remove_dual_man  perl-core/podlators          2.5.3        /usr/share/man/man1/perlpodstyle.1
-	if [[ ${EBUILD_PHASE} == "install" ]] ; then #553726
-		rm "${ED}"/usr/bin/config_data "${ED}"/usr/share/man/man1/config_data.1 || die
-	fi
+	src_remove_dual      perl-core/Archive-Tar        2.40.0       ptar ptardiff ptargrep
+	src_remove_dual      perl-core/Digest-SHA         5.950.0       shasum
+	src_remove_dual      perl-core/CPAN               2.110.0        cpan
+	src_remove_dual      perl-core/Encode             2.720.0       enc2xs piconv
+	src_remove_dual      perl-core/ExtUtils-MakeMaker 7.40.100       instmodsh
+	src_remove_dual      perl-core/ExtUtils-ParseXS   3.280.0       xsubpp
+	src_remove_dual      perl-core/IO-Compress        2.68.0        zipdetails
+	src_remove_dual      perl-core/JSON-PP            2.273.0      json_pp
+	src_remove_dual      perl-core/Module-CoreList    5.201.512.130 corelist
+	src_remove_dual      perl-core/Pod-Parser         1.630.0       pod2usage podchecker podselect
+	src_remove_dual      perl-core/Pod-Perldoc        3.250.0       perldoc
+	src_remove_dual      perl-core/Test-Harness       3.350.0       prove
+	src_remove_dual      perl-core/podlators          2.5.3         pod2man pod2text
+	src_remove_dual_man  perl-core/podlators          2.5.3         /usr/share/man/man1/perlpodstyle.1
 }
 
 # eblit-include [--skip] <function> [version]
@@ -103,7 +102,6 @@ eblit-run() {
 	eblit-run-maybe eblit-$1-post
 }
 
-#src_unpack()	{ eblit-run src_unpack    v50160001 ; }
 src_prepare()	{ eblit-run src_prepare   v50160001 ; }
 src_configure()	{ eblit-run src_configure v50180002 ; }
 #src_compile()	{ eblit-run src_compile   v50160001 ; }
@@ -116,7 +114,7 @@ src_install()	{ eblit-run src_install   v50200001 ; }
 # FILESDIR might not be available during binpkg install
 # FIXME: version passing
 for x in setup {pre,post}{inst,rm} ; do
-	e="${FILESDIR}/eblits/pkg_${x}-v50160001.eblit"
+	e="${FILESDIR}/eblits/pkg_${x}-v50220001.eblit"
 	if [[ -e ${e} ]] ; then
 		. "${e}"
 		eval "pkg_${x}() { eblit-run pkg_${x} v50160001 ; }"
