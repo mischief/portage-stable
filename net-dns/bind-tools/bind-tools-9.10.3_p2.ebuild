@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -17,20 +17,26 @@ SRC_URI="ftp://ftp.isc.org/isc/bind9/${MY_PV}/${MY_P}.tar.gz"
 
 LICENSE="ISC BSD BSD-2 HPND JNIC RSA openssl"
 SLOT="0"
-KEYWORDS="alpha amd64 ~arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh ~sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
-IUSE="doc gost gssapi idn ipv6 readline seccomp ssl urandom xml"
+KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~m68k ~mips ppc ppc64 ~s390 ~sh sparc x86 ~x86-fbsd ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+IUSE="doc gost gssapi idn ipv6 libressl readline seccomp ssl urandom xml"
 # no PKCS11 currently as it requires OpenSSL to be patched, also see bug 409687
 
-REQUIRED_USE="gost? ( ssl )"
+REQUIRED_USE="gost? ( !libressl ssl )"
 
-DEPEND="ssl? ( dev-libs/openssl:0 )
+CDEPEND="
+	ssl? (
+		!libressl? ( dev-libs/openssl:0 )
+		libressl? ( dev-libs/libressl )
+	)
 	gost? ( >=dev-libs/openssl-1.0.0:0[-bindist] )
 	xml? ( dev-libs/libxml2 )
 	idn? ( net-dns/idnkit )
 	gssapi? ( virtual/krb5 )
 	readline? ( sys-libs/readline:0= )
 	seccomp? ( sys-libs/libseccomp )"
-RDEPEND="${DEPEND}
+DEPEND="${CDEPEND}
+	virtual/pkgconfig"
+RDEPEND="${CDEPEND}
 	!<net-dns/bind-9.10.2"
 
 S="${WORKDIR}/${MY_P}"
@@ -41,6 +47,7 @@ RESTRICT="test"
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-9.5.0_p1-lwconfig.patch #231247
 	epatch "${FILESDIR}"/${PN}-9.10.2-openssl.patch #417129
+	epatch "${FILESDIR}"/${P}-libressl.patch #563648
 
 	# Disable tests for now, bug 406399
 	sed -i '/^SUBDIRS/s:tests::' bin/Makefile.in lib/Makefile.in || die
@@ -48,6 +55,8 @@ src_prepare() {
 	# bug #220361
 	rm aclocal.m4
 	rm -rf libtool.m4/
+
+	mv configure.in configure.ac || die # configure.in is deprecated
 	eautoreconf
 }
 
