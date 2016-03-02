@@ -1,6 +1,6 @@
 # Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-lang/ruby/ruby-2.0.0_p645.ebuild,v 1.4 2015/04/15 04:17:46 jer Exp $
+# $Id$
 
 EAPI=5
 
@@ -8,14 +8,12 @@ EAPI=5
 
 inherit autotools eutils flag-o-matic multilib versionator
 
-RUBYPL=$(get_version_component_range 4)
-
-MY_P="${PN}-$(get_version_component_range 1-3)-${RUBYPL:-0}"
+MY_P="${PN}-$(get_version_component_range 1-3)"
 S=${WORKDIR}/${MY_P}
 
 SLOT=$(get_version_component_range 1-2)
 MY_SUFFIX=$(delete_version_separator 1 ${SLOT})
-RUBYVERSION=2.0.0
+RUBYVERSION=2.2.0
 
 if [[ -n ${PATCHSET} ]]; then
 	if [[ ${PVR} == ${PV} ]]; then
@@ -29,41 +27,46 @@ fi
 
 DESCRIPTION="An object-oriented scripting language"
 HOMEPAGE="http://www.ruby-lang.org/"
-SRC_URI="mirror://ruby/2.0/${MY_P}.tar.xz
-		 http://dev.gentoo.org/~flameeyes/ruby-team/${PN}-patches-${PATCHSET}.tar.bz2"
+SRC_URI="mirror://ruby/2.2/${MY_P}.tar.xz
+		 https://dev.gentoo.org/~flameeyes/ruby-team/${PN}-patches-${PATCHSET}.tar.bz2"
 
 LICENSE="|| ( Ruby-BSD BSD-2 )"
-KEYWORDS="~alpha amd64 ~arm hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc x86 ~amd64-fbsd ~x86-fbsd"
-IUSE="berkdb debug doc examples gdbm ipv6 +rdoc rubytests socks5 ssl xemacs ncurses +readline cpu_flags_x86_sse2"
+KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd"
+IUSE="berkdb debug doc examples gdbm ipv6 jemalloc +rdoc rubytests socks5 ssl xemacs ncurses +readline"
 
 RDEPEND="
-	berkdb? ( sys-libs/db )
+	berkdb? ( sys-libs/db:= )
 	gdbm? ( sys-libs/gdbm )
-	ssl? ( dev-libs/openssl )
+	jemalloc? ( dev-libs/jemalloc )
+	ssl? ( dev-libs/openssl:0 )
 	socks5? ( >=net-proxy/dante-1.1.13 )
-	ncurses? ( sys-libs/ncurses )
-	readline?  ( sys-libs/readline )
+	ncurses? ( sys-libs/ncurses:0= )
+	readline?  ( sys-libs/readline:0 )
 	dev-libs/libyaml
 	virtual/libffi
 	sys-libs/zlib
-	>=app-eselect/eselect-ruby-20100402
+	>=app-eselect/eselect-ruby-20141227
 	!<dev-ruby/rdoc-3.9.4
 	!<dev-ruby/rubygems-1.8.10-r1"
 
 DEPEND="${RDEPEND}"
+
+BUNDLED_GEMS="
+	>=dev-ruby/minitest-5.4.3[ruby_targets_ruby22]
+	>=dev-ruby/power_assert-0.2.2[ruby_targets_ruby22]
+	>=dev-ruby/test-unit-3.0.8[ruby_targets_ruby22]
+"
+
 PDEPEND="
-	virtual/rubygems[ruby_targets_ruby20]
-	>=dev-ruby/json-1.7.7[ruby_targets_ruby20]
-	>=dev-ruby/rake-0.9.6[ruby_targets_ruby20]
-	rdoc? ( >=dev-ruby/rdoc-4.0.0[ruby_targets_ruby20] )
+	${BUNDLED_GEMS}
+	virtual/rubygems[ruby_targets_ruby22]
+	>=dev-ruby/json-1.8.1[ruby_targets_ruby22]
+	>=dev-ruby/rake-0.9.6[ruby_targets_ruby22]
+	rdoc? ( >=dev-ruby/rdoc-4.0.1[ruby_targets_ruby22] )
 	xemacs? ( app-xemacs/ruby-modes )"
 
 src_prepare() {
-	if use cpu_flags_x86_sse2 ; then
-		excluded_patches="012_no_forced_sse2.patch"
-	fi
-
-	EPATCH_EXCLUDE="${excluded_patches}" EPATCH_FORCE="yes" EPATCH_SUFFIX="patch" \
+	EPATCH_FORCE="yes" EPATCH_SUFFIX="patch" \
 		epatch "${WORKDIR}/patches"
 
 	# We can no longer unbundle all of rake because rubygems now depends
@@ -74,6 +77,10 @@ src_prepare() {
 	rm -r \
 		{bin,lib}/rake lib/rake.rb man/rake.1 \
 		bin/gem || die "removal failed"
+	# Remove bundled gems that we will install via PDEPEND, bug
+	# 539700. Use explicit version numbers to ensure rm fails when they
+	# change so we can update dependencies accordingly.
+	rm gems/{minitest-5.4.3,power_assert-0.2.2,test-unit-3.0.8}.gem || die
 
 	# Fix a hardcoded lib path in configure script
 	sed -i -e "s:\(RUBY_LIB_PREFIX=\"\${prefix}/\)lib:\1$(get_libdir):" \
@@ -139,6 +146,7 @@ src_configure() {
 		--enable-pthread \
 		--disable-rpath \
 		--with-out-ext="${modules}" \
+		$(use_enable jemalloc jemalloc) \
 		$(use_enable socks5 socks) \
 		$(use_enable doc install-doc) \
 		--enable-ipv6 \
