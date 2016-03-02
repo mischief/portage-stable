@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=5
+EAPI="5"
 
 SCM=""
 if [[ ${PV} == "9999" ]] ; then
@@ -46,8 +46,6 @@ src_unpack() {
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-2.0.0-tests.patch #485116
-	epatch "${FILESDIR}"/${P}-stdarg.patch #497200
-	epatch "${FILESDIR}"/${P}-big_endian.patch #508436
 	eautoreconf
 }
 
