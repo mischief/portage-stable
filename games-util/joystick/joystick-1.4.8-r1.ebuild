@@ -1,9 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/games-util/joystick/joystick-1.4.2.ebuild,v 1.4 2012/04/15 16:53:35 maekke Exp $
+# $Id$
 
-EAPI="4"
-
+EAPI=5
 inherit eutils toolchain-funcs
 
 MY_P="linuxconsoletools-${PV}"
@@ -13,22 +12,28 @@ SRC_URI="mirror://sourceforge/linuxconsole/files/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm ppc x86"
-IUSE="sdl"
+KEYWORDS="amd64 ~arm ~ppc x86"
+IUSE="sdl udev"
 
-DEPEND="sdl? ( media-libs/libsdl[video] )
+DEPEND="sdl? ( media-libs/libsdl:0[video] )
 	!<x11-libs/tslib-1.0-r2"
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	udev? ( virtual/udev )"
 
 S=${WORKDIR}/${MY_P}
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-build.patch
+	epatch \
+		"${FILESDIR}"/${P}-build.patch \
+		"${FILESDIR}"/${P}-udev.patch
 	export PREFIX=/usr
-}
-
-src_compile() {
 	tc-export CC PKG_CONFIG
 	export USE_SDL=$(usex sdl)
-	emake
+}
+
+src_install() {
+	default
+	if use !udev ; then
+		rm -f "${D}"/usr/bin/jscal-{re,}store || die
+	fi
 }
