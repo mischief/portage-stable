@@ -1,6 +1,6 @@
-# Copyright 1999-2010 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-tcltk/expect/expect-5.44.1.15.ebuild,v 1.16 2010/12/17 22:56:19 vapier Exp $
+# $Id$
 
 EAPI="3"
 
@@ -17,15 +17,16 @@ IUSE="debug doc threads X"
 
 # We need dejagnu for src_test, but dejagnu needs expect
 # to compile/run, so we cant add dejagnu to DEPEND :/
-DEPEND=">=dev-lang/tcl-8.2[threads?]
-	X? ( >=dev-lang/tk-8.2[threads?] )"
+DEPEND=">=dev-lang/tcl-8.2:0[threads?]
+	X? ( >=dev-lang/tk-8.2:0[threads?] )"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
 	sed -i "s#/usr/local/bin#${EPREFIX}/usr/bin#" expect{,k}.man || die
 	# stops any example scripts being installed by default
 	sed -i \
-		-e '/^install:/s/install-libraries //' \
+		-e 's/^SCRIPT_LIST/_&/' \
+		-e 's/^SCRIPTS/_&/' \
 		-e 's/^SCRIPTS_MANPAGES = /_&/' \
 		Makefile.in
 
