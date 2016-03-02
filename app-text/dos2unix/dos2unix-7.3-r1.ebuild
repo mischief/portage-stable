@@ -1,8 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-text/dos2unix/dos2unix-5.3.1.ebuild,v 1.9 2012/03/03 16:02:04 ranger Exp $
+# $Id$
 
-EAPI=4
+EAPI=5
 
 inherit eutils toolchain-funcs
 
@@ -14,29 +14,34 @@ SRC_URI="
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~sparc64-solaris"
-IUSE="debug nls"
+KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x86-macos ~sparc-solaris ~sparc64-solaris"
+IUSE="debug nls test"
 
 RDEPEND="
 	!app-text/hd2u
-	!app-text/unix2dos
 	virtual/libintl"
+
 DEPEND="
 	${RDEPEND}
+	nls? ( sys-devel/gettext )
+	test? ( virtual/perl-Test-Simple )
 	dev-lang/perl"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${PN}-5.3.1-fix_debug_build.patch
-
 	sed \
 		-e '/^LDFLAGS/s|=|+=|' \
-		-e '/^CC/s|=|?=|' \
 		-e '/CFLAGS_OS \+=/d' \
 		-e '/LDFLAGS_EXTRA \+=/d' \
 		-e "/^CFLAGS/s|-O2|${CFLAGS}|" \
-		-i "${S}"/Makefile || die
+		-i Makefile || die
+
+	if use debug ; then
+		sed -e "/^DEBUG/s:0:1:" \
+			-e "/EXTRA_CFLAGS +=/s:-g::" \
+			-i Makefile || die
+	fi
+
 	tc-export CC
-	use debug && sed "/DEBUG/s:0:1:g" -i Makefile
 }
 
 lintl() {
@@ -46,10 +51,10 @@ lintl() {
 
 src_compile() {
 	emake prefix="${EPREFIX}/usr" \
-		$(use nls && echo "LDFLAGS_EXTRA=$(lintl)" || echo "ENABLE_NLS=")
+		$(usex nls "LDFLAGS_EXTRA=$(lintl)" "ENABLE_NLS=")
 }
 
 src_install() {
 	emake DESTDIR="${D}" prefix="${EPREFIX}/usr" \
-		$(use nls || echo "ENABLE_NLS=") install
+		$(usex nls "" "ENABLE_NLS=") install
 }
