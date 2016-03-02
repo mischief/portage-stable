@@ -1,0 +1,11 @@
+DEFINED_PHASES=configure install preinst prepare unpack
+DEPEND=!<sys-devel/gettext-0.18.1.1-r3 || ( >=sys-devel/automake-1.14.1:1.14 >=sys-devel/automake-1.15:1.15 ) >=sys-devel/autoconf-2.69 >=sys-devel/libtool-2.4 >=dev-vcs/git-1.8.2.1
+DESCRIPTION=Python script wrapper
+EAPI=5
+HOMEPAGE=https://bitbucket.org/mgorny/python-exec/
+IUSE=python_targets_jython2_7 python_targets_pypy python_targets_pypy3 python_targets_python2_7 python_targets_python3_3 python_targets_python3_4 python_targets_python3_5
+LICENSE=BSD-2
+RDEPEND=!<app-eselect/eselect-python-20160206 !<dev-lang/python-2.7.10-r4:2.7 !<dev-lang/python-3.3.5-r4:3.3 !<dev-lang/python-3.4.3-r4:3.4 !<dev-lang/python-3.5.0-r3:3.5
+SLOT=2
+_eclasses_=autotools	199350adb9ae3c85e275b1409e43c90d	eutils	9fb270e417e0e83d64ca52586c4a79de	git-r3	ab80045e5d080584334f33013f4df21d	libtool	52d0e17251d04645ffaa61bfdd858944	multibuild	6d4858dc00f8bc51caf3f957f8430eb0	multilib	62927b3db3a589b0806255f3a002d5d3	python-r1	0f6937650a475d673baa5d0c8c0b37b3	python-utils-r1	2e6826f6a93ad2acf904eecf5b5fb6d2	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
+_md5_=b2e066698279a7b0360a3d50eb336b0a
