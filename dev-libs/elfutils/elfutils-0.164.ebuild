@@ -1,4 +1,4 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -8,8 +8,7 @@ inherit eutils flag-o-matic multilib-minimal
 
 DESCRIPTION="Libraries/utilities to handle ELF objects (drop in replacement for libelf)"
 HOMEPAGE="https://fedorahosted.org/elfutils/"
-SRC_URI="https://fedorahosted.org/releases/e/l/${PN}/${PV}/${P}.tar.bz2
-	https://fedorahosted.org/releases/e/l/${PN}/${PV}/${PN}-portability-${PV}.patch -> ${P}-portability.patch"
+SRC_URI="https://fedorahosted.org/releases/e/l/${PN}/${PV}/${P}.tar.bz2"
 
 LICENSE="GPL-2-with-exceptions"
 SLOT="0"
@@ -34,8 +33,6 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-0.118-PaX-support.patch
-	epatch "${DISTDIR}"/${P}-portability.patch
-	epatch "${FILESDIR}"/${P}-libelf-dir-traversal.patch #534000
 	use static-libs || sed -i -e '/^lib_LIBRARIES/s:=.*:=:' -e '/^%.os/s:%.o$::' lib{asm,dw,elf}/Makefile.in
 	sed -i 's:-Werror::' */Makefile.in
 	# some patches touch both configure and configure.ac
@@ -49,7 +46,6 @@ src_configure() {
 
 multilib_src_configure() {
 	ECONF_SOURCE="${S}" econf \
-		--disable-werror \
 		$(use_enable nls) \
 		$(use_enable threads thread-safety) \
 		--program-prefix="eu-" \
