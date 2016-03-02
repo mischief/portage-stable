@@ -1,5 +1,5 @@
 # ChangeLog for app-portage/eix
-# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
 # (auto-generated from git log)
 
 *eix-0.30.11 (09 Aug 2015)
@@ -146,4 +146,68 @@
   Version bump
 
   Package-Manager: portage-2.2.26
+
+*eix-0.31.5 (04 Jan 2016)
+
+  04 Jan 2016; Ian Stakenvicius <axs@gentoo.org> +eix-0.31.5.ebuild:
+  version bump, migrate to EAPI6
+
+  Package-Manager: portage-2.2.26
+
+  04 Jan 2016; Ian Stakenvicius <axs@gentoo.org> eix-0.30.4.ebuild,
+  eix-0.30.7.ebuild, eix-0.30.8.ebuild, eix-0.30.10.ebuild,
+  eix-0.30.11.ebuild, eix-0.31.1.ebuild, eix-0.31.2.ebuild, eix-0.31.3.ebuild,
+  eix-0.31.4.ebuild:
+  update copyright and DESCRIPTION to quiet repoman
+
+  Package-Manager: portage-2.2.26
+
+*eix-0.31.6 (08 Jan 2016)
+
+  08 Jan 2016; William Hubbs <williamh@gentoo.org> +eix-0.31.6.ebuild:
+  version bump
+
+  This was bumped at the request of axs.
+
+  08 Jan 2016; William Hubbs <williamh@gentoo.org> -eix-0.31.5.ebuild:
+  drop 0.31.5 at the request of axs
+
+  12 Jan 2016; Fabian Groffen <grobian@gentoo.org> eix-0.31.4.ebuild,
+  eix-0.31.6.ebuild:
+  marked ~x64-solaris
+
+  Package-Manager: portage-2.2.26
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+*eix-0.31.7 (09 Feb 2016)
+
+  09 Feb 2016; Manuel Rüger <mrueg@gentoo.org> +eix-0.31.7.ebuild:
+  Version bump
+
+  Package-Manager: portage-2.2.27
+
+  09 Feb 2016; Manuel Rüger <mrueg@gentoo.org> -eix-0.30.7.ebuild,
+  -eix-0.30.8.ebuild, -eix-0.31.1.ebuild, -eix-0.31.2.ebuild,
+  -eix-0.31.3.ebuild:
+  Remove old
+
+  Package-Manager: portage-2.2.27
+
+*eix-0.31.7-r1 (14 Feb 2016)
+
+  14 Feb 2016; Manuel Rüger <mrueg@gentoo.org> +eix-0.31.7-r1.ebuild,
+  metadata.xml:
+  Add support for required-use
+
+  Thanks to Martin Väth
+
+  Package-Manager: portage-2.2.27
 
