@@ -1,3 +1,5 @@
+resolvconf support in dhclient-script
+
 --- a/client/scripts/bsdos
 +++ b/client/scripts/bsdos
 @@ -1,40 +1,46 @@
@@ -40,7 +42,7 @@
        case $nameserver in
  	  fe80:*) zone_id="%$interface";;
  	  FE80:*) zone_id="%$interface";;
- 	  *)      zone_id='';;
+ 	  *)      zone_id="";;
        esac
 -      echo nameserver ${nameserver}$zone_id >> /etc/resolv.conf.dhclient6
 +      conf="${conf}nameserver ${nameserver}$zone_id\n"
@@ -132,7 +134,7 @@
  	case $nameserver in
  	    fe80:*) zone_id="%$interface";;
  	    FE80:*) zone_id="%$interface";;
- 	    *)      zone_id='';;
+ 	    *)      zone_id="";;
  	esac
 -	( echo nameserver ${nameserver}$zone_id >> /etc/resolv.conf.dhclient6 )
 -	exit_status=$?
@@ -275,7 +277,7 @@
        case $nameserver in
  	fe80:*) zone_id="%$interface";;
  	FE80:*) zone_id="%$interface";;
- 	*)      zone_id='';;
+ 	*)      zone_id="";;
        esac
 -      echo nameserver ${nameserver}$zone_id >> /etc/resolv.conf.dhclient6
 +      conf="${conf}nameserver ${nameserver}$zone_id\n"
@@ -339,7 +341,7 @@
        case $nameserver in
  	fe80:*) zone_id="%$interface";;
  	FE80:*) zone_id="%$interface";;
- 	*)      zone_id='';;
+ 	*)      zone_id="";;
        esac
 -      echo nameserver ${nameserver}$zone_id >> /etc/resolv.conf.dhclient6
 +      conf="${conf}nameserver ${nameserver}$zone_id\n"
