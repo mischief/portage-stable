@@ -1,12 +1,12 @@
 DEFINED_PHASES=compile install prepare
 DEPEND=sys-devel/bin86 dev-util/gperf
 DESCRIPTION=Bruce's C compiler - Simple C compiler to generate 8086 code
-EAPI=4
-HOMEPAGE=http://www.debath.co.uk/
-KEYWORDS=amd64 x86
+EAPI=5
+HOMEPAGE=http://v3.sk/~lkundrak/dev86/
+KEYWORDS=~amd64 ~ppc ~ppc64 ~x86
 LICENSE=GPL-2
 RDEPEND=sys-devel/bin86
 SLOT=0
-SRC_URI=http://www.debath.co.uk/dev86/Dev86src-0.16.19.tar.gz
+SRC_URI=http://v3.sk/~lkundrak/dev86/Dev86src-0.16.21.tar.gz
 _eclasses_=eutils	9fb270e417e0e83d64ca52586c4a79de	multilib	62927b3db3a589b0806255f3a002d5d3	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85
-_md5_=db90e069fad488e679b0d6b066565cdb
+_md5_=384fb728f956138dc78b6b8be0b4c5d9
