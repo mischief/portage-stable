@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -11,7 +11,7 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit git-2
 else
 	SRC_URI="mirror://kernel/linux/utils/net/${PN}/${P}.tar.xz"
-	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86"
+	KEYWORDS="alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ~ppc ppc64 ~s390 ~sh ~sparc x86"
 fi
 
 DESCRIPTION="kernel routing and traffic control utilities"
@@ -21,22 +21,25 @@ LICENSE="GPL-2"
 SLOT="0"
 IUSE="atm berkdb +iptables ipv6 minimal selinux"
 
+# We could make libmnl optional, but it's tiny, so eh
 RDEPEND="!net-misc/arpd
+	!minimal? ( net-libs/libmnl )
 	iptables? ( >=net-firewall/iptables-1.4.20:= )
-	!minimal? ( berkdb? ( sys-libs/db ) )
+	berkdb? ( sys-libs/db:= )
 	atm? ( net-dialup/linux-atm )
 	selinux? ( sys-libs/libselinux )"
+# We require newer linux-headers for ipset support #549948 and some defines #553876
 DEPEND="${RDEPEND}
 	app-arch/xz-utils
 	iptables? ( virtual/pkgconfig )
 	sys-devel/bison
 	sys-devel/flex
-	>=sys-kernel/linux-headers-2.6.27
+	>=sys-kernel/linux-headers-3.16
 	elibc_glibc? ( >=sys-libs/glibc-2.7 )"
 
 src_prepare() {
 	epatch "${FILESDIR}"/${PN}-3.1.0-mtu.patch #291907
-	use ipv6 || epatch "${FILESDIR}"/${PN}-3.10.0-no-ipv6.patch #326849
+	use ipv6 || epatch "${FILESDIR}"/${PN}-4.2.0-no-ipv6.patch #326849
 
 	sed -i \
 		-e '/^CC =/d' \
@@ -50,17 +53,14 @@ src_prepare() {
 	# Use /run instead of /var/run.
 	sed -i \
 		-e 's:/var/run:/run:g' \
-		ip/ipnetns.c \
+		include/namespace.h \
 		man/man8/ip-netns.8 || die
 
 	# build against system headers
 	rm -r include/netinet #include/linux include/ip{,6}tables{,_common}.h include/libiptc
 	sed -i 's:TCPI_OPT_ECN_SEEN:16:' misc/ss.c || die
 
-	# don't build arpd if USE=-berkdb #81660
-	use berkdb || sed -i '/^TARGETS=/s: arpd : :' misc/Makefile
-
-	use minimal && sed -i -e '/^SUBDIRS=/s:=.*:=lib tc:' Makefile
+	use minimal && sed -i -e '/^SUBDIRS=/s:=.*:=lib tc ip:' Makefile
 }
 
 src_configure() {
@@ -78,6 +78,10 @@ src_configure() {
 	cat <<-EOF > Config
 	TC_CONFIG_ATM := $(usex atm y n)
 	TC_CONFIG_XT  := $(usex iptables y n)
+	# We've locked in recent enough kernel headers #549948
+	TC_CONFIG_IPSET := y
+	HAVE_BERKELEY_DB := $(usex berkdb y n)
+	HAVE_MNL      := $(usex minimal n y)
 	HAVE_SELINUX  := $(usex selinux y n)
 	IP_CONFIG_SETNS := ${setns}
 	# Use correct iptables dir, #144265 #293709
@@ -89,6 +93,7 @@ src_install() {
 	if use minimal ; then
 		into /
 		dosbin tc/tc
+		dobin ip/ip
 		return 0
 	fi
 
