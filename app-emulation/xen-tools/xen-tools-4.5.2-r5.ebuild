@@ -1,6 +1,6 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/xen-tools/xen-tools-4.4.1-r4.ebuild,v 1.1 2014/11/26 03:25:14 dlan Exp $
+# $Id$
 
 EAPI=5
 
@@ -16,32 +16,42 @@ if [[ $PV == *9999 ]]; then
 	S="${WORKDIR}/${REPO}"
 	live_eclass="mercurial"
 else
-	KEYWORDS="~amd64 ~arm -x86"
-	UPSTREAM_VER=2
+	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
+	UPSTREAM_VER=
+	SECURITY_VER=7
+	# vars set to reflect https://dev.gentoo.org/~idella4/
+	SEC_VER=8
+	QEMU_VER=0
 	# xen-tools's gentoo patches tarball
-	GENTOO_VER=3
+	GENTOO_VER=4
 	# xen-tools's gentoo patches version which apply to this specific ebuild
-	GENTOO_GPV=2
+	GENTOO_GPV=0
 	# xen-tools ovmf's patches
-	OVMF_VER=0
+	OVMF_VER=1
 
-	SEABIOS_VER=1.7.3.1
-	OVMF_PV=20131208
+	SEABIOS_VER=1.7.5
+	OVMF_PV=20150629
 
 	[[ -n ${UPSTREAM_VER} ]] && \
-		UPSTRAM_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P/-tools/}-upstream-patches-${UPSTREAM_VER}.tar.xz"
+		UPSTREAM_PATCHSET_URI="https://dev.gentoo.org/~dlan/distfiles/${P/-tools/}-upstream-patches-${UPSTREAM_VER}.tar.xz"
+	[[ -n ${SECURITY_VER} ]] && \
+		SECURITY_PATCHSET_URI="https://dev.gentoo.org/~idella4/distfiles/${PN/-tools}-security-patches-${SECURITY_VER}.tar.xz
+		https://dev.gentoo.org/~idella4/distfiles/${PN/-tools}-security-patches-${SEC_VER}.tar.gz
+		https://dev.gentoo.org/~idella4/distfiles/${PN/-tools}-qemu-patches-${QEMU_VER}.tar.gz"
 	[[ -n ${GENTOO_VER} ]] && \
-		GENTOO_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${PN/-tools}-gentoo-patches-${GENTOO_VER}.tar.xz"
+		GENTOO_PATCHSET_URI="https://dev.gentoo.org/~dlan/distfiles/${PN/-tools}-gentoo-patches-${GENTOO_VER}.tar.xz"
 	[[ -n ${OVMF_VER} ]] && \
-		OVMF_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${PN/-tools}-ovmf-patches-${OVMF_VER}.tar.xz"
+		OVMF_PATCHSET_URI="https://dev.gentoo.org/~dlan/distfiles/${PN/-tools}-ovmf-patches-${OVMF_VER}.tar.xz"
 
 	SRC_URI="http://bits.xensource.com/oss-xen/release/${MY_PV}/xen-${MY_PV}.tar.gz
 	http://code.coreboot.org/p/seabios/downloads/get/seabios-${SEABIOS_VER}.tar.gz
-	http://dev.gentoo.org/~dlan/distfiles/seabios-${SEABIOS_VER}.tar.gz
-	http://dev.gentoo.org/~dlan/distfiles/ovmf-${OVMF_PV}.tar.bz2
-	${UPSTRAM_PATCHSET_URI}
-	${GENTOO_PATCHSET_URI}
-	${OVMF_PATCHSET_URI}"
+	https://dev.gentoo.org/~dlan/distfiles/seabios-${SEABIOS_VER}.tar.gz
+	ovmf? ( https://dev.gentoo.org/~dlan/distfiles/ovmf-${OVMF_PV}.tar.bz2
+		${OVMF_PATCHSET_URI} )
+	${UPSTREAM_PATCHSET_URI}
+	${SECURITY_PATCHSET_URI}
+	${GENTOO_PATCHSET_URI}"
+
 	S="${WORKDIR}/xen-${MY_PV}"
 fi
 
@@ -75,23 +85,26 @@ COMMON_DEPEND="
 
 DEPEND="${COMMON_DEPEND}
 	dev-python/lxml[${PYTHON_USEDEP}]
+	x86? ( sys-devel/dev86
+		sys-power/iasl )
 	pam? ( dev-python/pypam[${PYTHON_USEDEP}] )
 	hvm? ( media-libs/libsdl )
 	${PYTHON_DEPS}
 	api? ( dev-libs/libxml2
 		net-misc/curl )
-	pygrub? ( ${PYTHON_DEPS//${PYTHON_REQ_USE}/ncurses} )
-	arm? ( >=sys-apps/dtc-1.4.0 )
-	!arm? ( sys-devel/bin86
+	pygrub? ( $(python_gen_impl_dep ncurses) )
+	ovmf? ( $(python_gen_impl_dep sqlite) )
+	!amd64? ( >=sys-apps/dtc-1.4.0 )
+	amd64? ( sys-devel/bin86
 		system-seabios? ( sys-firmware/seabios )
 		sys-firmware/ipxe
 		sys-devel/dev86
 		sys-power/iasl )
 	dev-lang/perl
 	app-misc/pax-utils
-	dev-python/markdown[${PYTHON_USEDEP}]
 	doc? (
 		app-doc/doxygen
+		dev-python/markdown[${PYTHON_USEDEP}]
 		dev-tex/latex2html[png,gif]
 		media-gfx/graphviz
 		dev-tex/xcolor
@@ -146,6 +159,8 @@ pkg_setup() {
 			export XEN_TARGET_ARCH="x86_64"
 		elif use arm; then
 			export XEN_TARGET_ARCH="arm32"
+		elif use arm64; then
+			export XEN_TARGET_ARCH="arm64"
 		else
 			die "Unsupported architecture!"
 		fi
@@ -155,14 +170,59 @@ pkg_setup() {
 src_prepare() {
 	# Upstream's patchset
 	if [[ -n ${UPSTREAM_VER} ]]; then
+		einfo "Try to apply Xen Upstream patcheset"
 		EPATCH_SUFFIX="patch" \
 		EPATCH_FORCE="yes" \
 		EPATCH_OPTS="-p1" \
 			epatch "${WORKDIR}"/patches-upstream
 	fi
 
+	# Security patchset
+	if [[ -n ${SECURITY_VER} ]]; then
+		einfo "Try to apply Xen Security patcheset"
+		source "${WORKDIR}"/patches-security/${PV}.conf
+		# apply main xen patches
+		# Two parallel systems, both work
+		# Over time they may concdense into one. This will suffice for now
+		EPATCH_SUFFIX="patch"
+		EPATCH_FORCE="yes"
+		for i in ${XEN_SECURITY_MAIN}; do
+			epatch "${WORKDIR}"/patches-security/xen/$i
+		done
+		for i in "${WORKDIR}"/xen-sec/xsa*.patch; do
+			epatch $i
+		done
+
+		# apply qemu-traditional patches
+		pushd "${S}"/tools/qemu-xen-traditional/ > /dev/null
+		for i in ${XEN_SECURITY_QEMUT}; do
+			 epatch "${WORKDIR}"/patches-security/qemut/$i
+		done
+		for i in "${WORKDIR}"/qemu-patches/qemut/xsa*.patch; do
+			epatch $i
+		done
+		popd > /dev/null
+
+		# apply qemu-xen/upstream patches
+		pushd "${S}"/tools/qemu-xen/ > /dev/null
+		for i in ${XEN_SECURITY_QEMUU}; do
+			epatch "${WORKDIR}"/patches-security/qemuu/$i
+		done
+		for i in "${WORKDIR}"/qemu-patches/qemuu/xsa*.patch; do
+			epatch $i
+		done
+		popd > /dev/null
+	fi
+
+	# move before Gentoo patch, one patch should apply to seabios, to fix gcc-4.5.x build err
+	mv ../seabios-${SEABIOS_VER} tools/firmware/seabios-dir-remote || die
+	pushd tools/firmware/ > /dev/null
+	ln -s seabios-dir-remote seabios-dir || die
+	popd > /dev/null
+
 	# Gentoo's patchset
 	if [[ -n ${GENTOO_VER} && -n ${GENTOO_GPV} ]]; then
+		einfo "Try to apply Gentoo specific patch set"
 		source "${FILESDIR}"/gentoo-patches.conf
 		_gpv=_gpv_${PN/-/_}_${PV//./}_${GENTOO_GPV}
 		for i in ${!_gpv}; do
@@ -173,22 +233,20 @@ src_prepare() {
 	fi
 
 	# Ovmf's patchset
-	if [[ -n ${OVMF_VER} ]]; then
-		pushd "${WORKDIR}"/ovmf-*/ > /dev/null
-		EPATCH_SUFFIX="patch" \
-		EPATCH_FORCE="yes" \
-		EPATCH_OPTS="-p1" \
-			epatch "${WORKDIR}"/patches-ovmf
-		popd > /dev/null
+	if use ovmf; then
+		if [[ -n ${OVMF_VER} ]];then
+			einfo "Try to apply Ovmf patch set"
+			pushd "${WORKDIR}"/ovmf-*/ > /dev/null
+			EPATCH_SUFFIX="patch" \
+			EPATCH_FORCE="yes" \
+			EPATCH_OPTS="-p1" \
+				epatch "${WORKDIR}"/patches-ovmf
+			popd > /dev/null
+		fi
+		mv ../ovmf-${OVMF_PV} tools/firmware/ovmf-dir-remote || die
 	fi
 
 	mv tools/qemu-xen/qemu-bridge-helper.c tools/qemu-xen/xen-bridge-helper.c || die
-
-	mv ../seabios-${SEABIOS_VER} tools/firmware/seabios-dir-remote || die
-	mv ../ovmf-${OVMF_PV} tools/firmware/ovmf-dir-remote || die
-	pushd tools/firmware/ > /dev/null
-	ln -s seabios-dir-remote seabios-dir || die
-	popd > /dev/null
 
 	# Fix texi2html build error with new texi2html, qemu.doc.html
 	sed -i -e "/texi2html -monolithic/s/-number//" tools/qemu-xen-traditional/Makefile || die
@@ -244,7 +302,7 @@ src_prepare() {
 
 	# xencommons, Bug #492332, sed lighter weight than patching
 	sed -e 's:\$QEMU_XEN -xen-domid:test -e "\$QEMU_XEN" \&\& &:' \
-		-i tools/hotplug/Linux/init.d/xencommons || die
+		-i tools/hotplug/Linux/init.d/xencommons.in || die
 
 	# respect multilib, usr/lib/libcacard.so.0.0.0
 	sed -e "/^libdir=/s/\/lib/\/$(get_libdir)/" \
@@ -255,28 +313,26 @@ src_prepare() {
 		sed -i -e "/x86_emulator/d" tools/tests/Makefile || die
 	fi
 
-	# Bug 477884, 518136
-	if [[ "${ARCH}" == 'amd64' ]]; then
-		sed -i -e "/LIBEXEC =/s|/lib/xen/bin|/$(get_libdir)/xen/bin|" config/StdGNU.mk || die
-	fi
+	# use /var instead of /var/lib, consistat with previous ebuild
+	sed -i -e   "/XEN_LOCK_DIR=/s/\$localstatedir/\/var/g" \
+		m4/paths.m4 configure tools/configure || die
+	# use /run instead of /var/run
+	sed -i -e   "/XEN_RUN_DIR=/s/\$localstatedir//g" \
+		m4/paths.m4 configure tools/configure || die
 
-	# fix QA warning, create /var/run/, /var/lock dynamically
-	sed -i -e "/\$(INSTALL_DIR) \$(DESTDIR)\$(XEN_RUN_DIR)/d" \
-		tools/libxl/Makefile || die
-
-	sed -i -e "/\/var\/run\//d" \
-		tools/xenstore/Makefile \
-		tools/pygrub/Makefile || die
-
-	sed -i -e "/\/var\/lock\/subsys/d" \
-		tools/Makefile || die
+	# uncomment lines in xl.conf
+	sed -e 's:^#autoballoon=:autoballoon=:' \
+		-e 's:^#lockfile=:lockfile=:' \
+		-e 's:^#vif.default.script=:vif.default.script=:' \
+		-i tools/examples/xl.conf  || die
 
 	epatch_user
 }
 
 src_configure() {
-	local myconf="--prefix=/usr \
-		--libdir=/usr/$(get_libdir) \
+	local myconf="--prefix=${PREFIX}/usr \
+		--libdir=${PREFIX}/usr/$(get_libdir) \
+		--libexecdir=${PREFIX}/usr/libexec \
 		--disable-werror \
 		--disable-xen \
 		--enable-tools \
@@ -287,10 +343,9 @@ src_configure() {
 		$(use_enable ovmf) \
 		$(use_enable ocaml ocamltools) \
 		"
-	# disable qemu-traditional for arm, fail to build
-	use arm || myconf+=" --enable-qemu-traditional"
 	use system-seabios && myconf+=" --with-system-seabios=/usr/share/seabios/bios.bin"
 	use qemu || myconf+=" --with-system-qemu"
+	use amd64 && myconf+=" --enable-qemu-traditional"
 	econf ${myconf}
 }
 
@@ -330,12 +385,6 @@ src_install() {
 	# Remove RedHat-specific stuff
 	rm -rf "${D}"tmp || die
 
-	# uncomment lines in xl.conf
-	sed -e 's:^#autoballoon=1:autoballoon=1:' \
-		-e 's:^#lockfile="/var/lock/xl":lockfile="/var/lock/xl":' \
-		-e 's:^#vifscript="vif-bridge":vifscript="vif-bridge":' \
-		-i tools/examples/xl.conf  || die
-
 	if use doc; then
 		emake DESTDIR="${D}" DOCDIR="/usr/share/doc/${PF}" install-docs
 
@@ -369,9 +418,6 @@ src_install() {
 	if ! use static-libs; then
 		rm -f "${D}"usr/$(get_libdir)/*.a "${D}"usr/$(get_libdir)/ocaml/*/*.a
 	fi
-
-	# xend expects these to exist
-	keepdir /var/lib/xenstored /var/xen/dump /var/lib/xen /var/log/xen
 
 	# for xendomains
 	keepdir /etc/xen/auto
