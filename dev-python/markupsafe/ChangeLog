@@ -1,176 +1,88 @@
 # ChangeLog for dev-python/markupsafe
-# Copyright 1999-2013 Gentoo Foundation; Distributed under the GPL v2
-# $Header: /var/cvsroot/gentoo-x86/dev-python/markupsafe/ChangeLog,v 1.49 2013/08/04 13:42:23 ago Exp $
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
+# (auto-generated from git log)
 
-  04 Aug 2013; Agostino Sarubbo <ago@gentoo.org> markupsafe-0.15-r1.ebuild:
-  Stable for ppc64, wrt bug #477970
+*markupsafe-0.23 (09 Aug 2015)
 
-  28 Jul 2013; Agostino Sarubbo <ago@gentoo.org> markupsafe-0.15-r1.ebuild:
-  Stable for ppc, wrt bug #477970
+  09 Aug 2015; Robin H. Johnson <robbat2@gentoo.org> +markupsafe-0.23.ebuild,
+  +metadata.xml:
+  proj/gentoo: Initial commit
 
-*markupsafe-0.18 (28 May 2013)
+  This commit represents a new era for Gentoo:
+  Storing the gentoo-x86 tree in Git, as converted from CVS.
 
-  28 May 2013; Ian Delaney <idella4@gentoo.org>
-  +files/markupsafe-0.18-py3compat.patch, +markupsafe-0.18.ebuild,
-  markupsafe-0.12.ebuild:
-  bump, add patch to fix py3 support, fixes Bug #470952
+  This commit is the start of the NEW history.
+  Any historical data is intended to be grafted onto this point.
 
-  02 Feb 2013; Agostino Sarubbo <ago@gentoo.org> markupsafe-0.15-r1.ebuild:
-  Stable for x86, wrt bug #454314
+  Creation process:
+  1. Take final CVS checkout snapshot
+  2. Remove ALL ChangeLog* files
+  3. Transform all Manifests to thin
+  4. Remove empty Manifests
+  5. Convert all stale $Header$/$Id$ CVS keywords to non-expanded Git $Id$
+  5.1. Do not touch files with -kb/-ko keyword flags.
 
-  02 Feb 2013; Agostino Sarubbo <ago@gentoo.org> markupsafe-0.15-r1.ebuild:
-  Stable for amd64, wrt bug #454314
+  Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+  X-Thanks: Alec Warner <antarus@gentoo.org> - did the GSoC 2006 migration
+  tests
+  X-Thanks: Robin H. Johnson <robbat2@gentoo.org> - infra guy, herding this
+  project
+  X-Thanks: Nguyen Thai Ngoc Duy <pclouds@gentoo.org> - Former Gentoo
+  developer, wrote Git features for the migration
+  X-Thanks: Brian Harring <ferringb@gentoo.org> - wrote much python to improve
+  cvs2svn
+  X-Thanks: Rich Freeman <rich0@gentoo.org> - validation scripts
+  X-Thanks: Patrick Lauer <patrick@gentoo.org> - Gentoo dev, running new 2014
+  work in migration
+  X-Thanks: Michał Górny <mgorny@gentoo.org> - scripts, QA, nagging
+  X-Thanks: All of other Gentoo developers - many ideas and lots of paint on
+  the bikeshed
 
-  13 Jan 2013; Michał Górny <mgorny@gentoo.org> markupsafe-0.15-r1.ebuild:
-  Enable pypy2.0.
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> markupsafe-0.23.ebuild:
+  Use https by default
 
-*markupsafe-0.15-r1 (19 Dec 2012)
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  19 Dec 2012; Michał Górny <mgorny@gentoo.org> +markupsafe-0.15-r1.ebuild:
-  Migrate to distutils-r1.
+  24 Aug 2015; Justin Lecher <jlec@gentoo.org> metadata.xml:
+  Use https by default
 
-  09 May 2012; Alexis Ballier <aballier@gentoo.org> markupsafe-0.15.ebuild:
-  keyword ~amd64-fbsd
+  Convert all URLs for sites supporting encrypted connections from http to
+  https
 
-  25 Feb 2012; Marien Zwart <marienz@gentoo.org> markupsafe-0.15.ebuild:
-  Unrestrict pypy, just disable speedups on non-CPython. Thanks to Arfrever on
-  freenode for reporting.
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  20 Feb 2012; Patrick Lauer <patrick@gentoo.org> markupsafe-0.12.ebuild,
-  markupsafe-0.15.ebuild:
-  Restricting pypy #404047
+  24 Aug 2015; Mike Gilbert <floppym@gentoo.org> metadata.xml:
+  Revert DOCTYPE SYSTEM https changes in metadata.xml
 
-  13 Feb 2012; Kacper Kowalik <xarthisius@gentoo.org> markupsafe-0.15.ebuild:
-  ppc64 stable wrt #386053
+  repoman does not yet accept the https version.
+  This partially reverts eaaface92ee81f30a6ac66fe7acbcc42c00dc450.
 
-  01 Feb 2012; Brent Baude <ranger@gentoo.org> markupsafe-0.15.ebuild:
-  Marking markupsafe-0.15 ppc for bug 386053
+  Bug: https://bugs.gentoo.org/552720
 
-  23 Oct 2011; Raúl Porcel <armin76@gentoo.org> markupsafe-0.15.ebuild:
-  alpha/ia64/s390/sh/sparc stable wrt #386053
+*markupsafe-0.23-r1 (11 Oct 2015)
 
-  17 Oct 2011; Jeroen Roovers <jer@gentoo.org> markupsafe-0.15.ebuild:
-  Stable for HPPA (bug #386053).
+  11 Oct 2015; Justin Lecher <jlec@gentoo.org> +markupsafe-0.23-r1.ebuild:
+  Add python3.5 support
 
-  15 Oct 2011; Markus Meier <maekke@gentoo.org> markupsafe-0.15.ebuild:
-  arm stable, bug #386053
+  Package-Manager: portage-2.2.23
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
 
-  13 Oct 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org> markupsafe-0.15.ebuild:
-  x86 stable wrt bug #386053
+  14 Oct 2015; Michał Górny <mgorny@gentoo.org> markupsafe-0.23.ebuild,
+  -markupsafe-0.23-r1.ebuild:
+  dev-python/*: Restore keywords and un-revbump for py3.5
 
-  11 Oct 2011; Naohiro Aota <naota@gentoo.org> markupsafe-0.15.ebuild:
-  Add ~x86-fbsd
+  Restore keywords that were removed unnecessarily, and collapse
+  unnecessary revbumps on packages with added python3.5 support.
 
-  09 Oct 2011; Markos Chandras <hwoarang@gentoo.org> markupsafe-0.15.ebuild:
-  Stable on amd64 wrt bug #386053
+  16 Oct 2015; Mike Frysinger <vapier@gentoo.org> markupsafe-0.23.ebuild:
+  mark 0.23 arm64/s390/sh stable
 
-  22 Aug 2011; Markus Duft <mduft@gentoo.org> markupsafe-0.15.ebuild:
-  keyworded ~x86-interix
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
 
-*markupsafe-0.15 (08 Aug 2011)
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
 
-  08 Aug 2011; Dirkjan Ochtman <djc@gentoo.org> +markupsafe-0.15.ebuild:
-  Version bump to 0.15.
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
 
-  29 Apr 2011; Samuli Suominen <ssuominen@gentoo.org> markupsafe-0.12.ebuild:
-  ppc64 stable wrt #360349
-
-  23 Apr 2011; Raúl Porcel <armin76@gentoo.org> markupsafe-0.12.ebuild:
-  ia64/s390/sh/sparc stable wrt #360349
-
-  14 Apr 2011; Brent Baude <ranger@gentoo.org> markupsafe-0.12.ebuild:
-  stable ppc, bug 360349
-
-  10 Apr 2011; Markus Meier <maekke@gentoo.org> markupsafe-0.12.ebuild:
-  arm stable, bug #360349
-
-  30 Mar 2011; Jeroen Roovers <jer@gentoo.org> markupsafe-0.12.ebuild:
-  Stable for HPPA (bug #360349).
-
-  28 Mar 2011; Pawel Hajdan jr <phajdan.jr@gentoo.org>
-  markupsafe-0.12.ebuild:
-  x86 stable wrt bug #360349
-
-  27 Mar 2011; Tobias Klausmann <klausman@gentoo.org> markupsafe-0.12.ebuild:
-  Stable on alpha, bug #360349
-
-  24 Mar 2011; Christoph Mende <angelos@gentoo.org> markupsafe-0.12.ebuild:
-  Stable on amd64 wrt bug #360349
-
-*markupsafe-0.12 (17 Feb 2011)
-
-  17 Feb 2011; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
-  +markupsafe-0.12.ebuild:
-  Version bump.
-
-  13 Feb 2011; Fabian Groffen <grobian@gentoo.org> markupsafe-0.11.ebuild:
-  Marked ~sparc-solaris and ~sparc64-solaris
-
-  27 Dec 2010; Brent Baude <ranger@gentoo.org> markupsafe-0.11.ebuild:
-  Marking markupsafe-0.11 ppc64 for bug 341165
-
-  18 Dec 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
-  -markupsafe-0.9.2.ebuild:
-  Delete.
-
-  18 Dec 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
-  markupsafe-0.11.ebuild:
-  Fix building with Jython.
-
-  27 Nov 2010; Raúl Porcel <armin76@gentoo.org> markupsafe-0.11.ebuild:
-  alpha/ia64/s390/sh/sparc stable wrt #341165
-
-  24 Oct 2010; Markus Meier <maekke@gentoo.org> markupsafe-0.11.ebuild:
-  arm stable, bug #341165
-
-  21 Oct 2010; Jeroen Roovers <jer@gentoo.org> markupsafe-0.11.ebuild:
-  Stable for HPPA (bug #341165).
-
-  20 Oct 2010; Brent Baude <ranger@gentoo.org> markupsafe-0.11.ebuild:
-  stable ppc, bug 341165
-
-  18 Oct 2010; Jeroen Roovers <jer@gentoo.org> markupsafe-0.9.2.ebuild,
-  markupsafe-0.11.ebuild:
-  Marked ~hppa (bug #337663).
-
-  16 Oct 2010; Markos Chandras <hwoarang@gentoo.org> markupsafe-0.11.ebuild:
-  Stable on amd64 wrt bug #341165
-
-  16 Oct 2010; Dane Smith <c1pher@gentoo.org> markupsafe-0.11.ebuild:
-  x86 stable wrt bug 341165.
-
-  13 Oct 2010; Markus Meier <maekke@gentoo.org> markupsafe-0.9.2.ebuild:
-  arm stable, bug #338913
-
-  12 Oct 2010; Raúl Porcel <armin76@gentoo.org> markupsafe-0.9.2.ebuild,
-  markupsafe-0.11.ebuild:
-  Add ~alpha/~ia64/~s390/~sh/~sparc wrt #337663
-
-  08 Oct 2010; Mart Raudsepp <leio@gentoo.org> markupsafe-0.11.ebuild:
-  Add ~mips keyword.
-
-  28 Sep 2010; Brent Baude <ranger@gentoo.org> markupsafe-0.9.2.ebuild:
-  stable ppc, bug 329785
-
-*markupsafe-0.11 (16 Sep 2010)
-
-  16 Sep 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
-  +markupsafe-0.11.ebuild:
-  Version bump.
-
-  31 Jul 2010; Markos Chandras <hwoarang@gentoo.org>
-  markupsafe-0.9.2.ebuild:
-  Stable on amd64 wrt bug #329785
-
-  26 Jul 2010; Pawel Hajdan jr <phajdan.jr@gentoo.org>
-  markupsafe-0.9.2.ebuild:
-  x86 stable wrt bug #329785
-
-  07 Jul 2010; Jeremy Olexa <darkside@gentoo.org> markupsafe-0.9.2.ebuild:
-  Add Gentoo Prefix keywords as tested in bug 327307
-
-*markupsafe-0.9.2 (24 Jun 2010)
-
-  24 Jun 2010; Arfrever Frehtes Taifersar Arahesis <arfrever@gentoo.org>
-  +markupsafe-0.9.2.ebuild, +metadata.xml:
-  Initial addition. Ebuild written by me.
