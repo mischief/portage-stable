@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/xen-pvgrub/xen-pvgrub-4.2.5.ebuild,v 1.3 2014/10/14 13:15:44 ago Exp $
+# $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE='xml,threads'
 
 inherit flag-o-matic eutils multilib python-single-r1 toolchain-funcs
@@ -12,15 +12,6 @@ inherit flag-o-matic eutils multilib python-single-r1 toolchain-funcs
 XEN_EXTFILES_URL="http://xenbits.xensource.com/xen-extfiles"
 LIBPCI_URL=ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci
 GRUB_URL=mirror://gnu-alpha/grub
-
-UPSTREAM_VER=
-GENTOO_VER=
-
-[[ -n ${UPSTREAM_VER} ]] && \
-	UPSTREAM_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P/-pvgrub/}-upstream-patches-${UPSTREAM_VER}.tar.xz"
-[[ -n ${GENTOO_VER} ]] && \
-	GENTOO_PATCHSET_URI="http://dev.gentoo.org/~dlan/distfiles/${P/-pvgrub/}-gentoo-patches-${GENTOO_VER}.tar.xz"
-
 SRC_URI="
 		http://bits.xensource.com/oss-xen/release/${PV}/xen-${PV}.tar.gz
 		$GRUB_URL/grub-0.97.tar.gz
@@ -28,9 +19,7 @@ SRC_URI="
 		$LIBPCI_URL/pciutils-2.2.9.tar.bz2
 		$XEN_EXTFILES_URL/lwip-1.3.0.tar.gz
 		$XEN_EXTFILES_URL/newlib/newlib-1.16.0.tar.gz
-		${UPSTREAM_PATCHSET_URI}
-		${GENTOO_PATCHSET_URI}
-		"
+		$XEN_EXTFILES_URL/polarssl-1.1.4-gpl.tgz"
 
 S="${WORKDIR}/xen-${PV}"
 
@@ -44,9 +33,11 @@ IUSE="custom-cflags"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DEPEND="sys-devel/gettext
-	sys-devel/bin86"
+	sys-devel/bin86
+	sys-apps/texinfo
+	x11-libs/pixman"
 
-RDEPEND=">=app-emulation/xen-4.2.1"
+RDEPEND=">=app-emulation/xen-tools-${PV}"
 
 pkg_setup() {
 	python-single-r1_pkg_setup
@@ -54,7 +45,7 @@ pkg_setup() {
 
 retar-externals() {
 	# Purely to unclutter src_prepare
-	local set="grub-0.97.tar.gz lwip-1.3.0.tar.gz newlib-1.16.0.tar.gz zlib-1.2.3.tar.gz"
+	local set="grub-0.97.tar.gz lwip-1.3.0.tar.gz newlib-1.16.0.tar.gz polarssl-1.1.4-gpl.tgz zlib-1.2.3.tar.gz"
 
 	# epatch can't patch in $WORKDIR, requires a sed; Bug #455194. Patchable, but sed informative
 	sed -e s':AR=${AR-"ar rc"}:AR=${AR-"ar"}:' \
@@ -69,25 +60,12 @@ retar-externals() {
 	tar czp grub-0.97 -f grub-0.97.tar.gz
 	tar czp lwip -f lwip-1.3.0.tar.gz
 	tar czp newlib-1.16.0 -f newlib-1.16.0.tar.gz
+	tar czp polarssl-1.1.4 -f polarssl-1.1.4-gpl.tgz
 	mv $set "${S}"/stubdom/
 	einfo "tarballs moved to source"
 }
 
 src_prepare() {
-	# Upstream's patchset
-	if [[ -n ${UPSTREAM_VER} ]]; then
-		EPATCH_SUFFIX="patch" \
-		EPATCH_FORCE="yes" \
-			epatch "${WORKDIR}"/patches-upstream
-	fi
-
-	# Gentoo's patchset
-	if [[ -n ${GENTOO_VER} ]]; then
-		EPATCH_SUFFIX="patch" \
-		EPATCH_FORCE="yes" \
-			epatch "${WORKDIR}"/patches-gentoo
-	fi
-
 	# if the user *really* wants to use their own custom-cflags, let them
 	if use custom-cflags; then
 		einfo "User wants their own CFLAGS - removing defaults"
@@ -105,20 +83,24 @@ src_prepare() {
 	cp "${FILESDIR}"/newlib-implicits.patch stubdom || die
 
 	# Patch stubdom/Makefile to patch insource newlib & prevent internal downloading
-	epatch "${FILESDIR}"/${PN/-pvgrub/}-4.2.1-externals.patch
-
-	# Drop .config and Fix gcc-4.6
-	epatch 	"${FILESDIR}"/${PN/-pvgrub/}-4-fix_dotconfig-gcc.patch
+	epatch "${FILESDIR}"/${PN/-pvgrub/}-4.3-externals.patch
 
 	# fix jobserver in Makefile
 	epatch "${FILESDIR}"/${PN}-4.2-jserver.patch
 
-	# gcc warnings/QA fix
-	epatch "${FILESDIR}"/${PN}-4.2.3-qa.patch
-
 	#Substitute for internal downloading. pciutils copied only due to the only .bz2
 	cp "${DISTDIR}"/pciutils-2.2.9.tar.bz2 ./stubdom/ || die "pciutils not copied to stubdom"
 	retar-externals || die "re-tar procedure failed"
+}
+
+src_configure() {
+	local myconf="--prefix=${PREFIX}/usr \
+		--libdir=${PREFIX}/usr/$(get_libdir) \
+		--libexecdir=${PREFIX}/usr/libexec \
+		--disable-werror \
+		--disable-xen"
+
+	econf ${myconf}
 }
 
 src_compile() {
@@ -157,6 +139,6 @@ src_install() {
 
 pkg_postinst() {
 	elog "Official Xen Guide and the offical wiki page:"
-	elog "http://www.gentoo.org/doc/en/xen-guide.xml"
+	elog "https://wiki.gentoo.org/wiki/Xen"
 	elog "http://wiki.xen.org/wiki/Main_Page"
 }

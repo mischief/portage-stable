@@ -1,10 +1,10 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-emulation/xen-pvgrub/xen-pvgrub-4.3.3.ebuild,v 1.2 2014/10/14 13:15:04 ago Exp $
+# $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_6,2_7} )
+PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE='xml,threads'
 
 inherit flag-o-matic eutils multilib python-single-r1 toolchain-funcs
@@ -27,16 +27,17 @@ DESCRIPTION="allows to boot Xen domU kernels from a menu.lst laying inside guest
 HOMEPAGE="http://xen.org/"
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 -x86"
+KEYWORDS="~amd64 ~x86"
 IUSE="custom-cflags"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 DEPEND="sys-devel/gettext
 	sys-devel/bin86
-	sys-apps/texinfo"
+	sys-apps/texinfo
+	x11-libs/pixman"
 
-RDEPEND=">=app-emulation/xen-4.2.1"
+RDEPEND=">=app-emulation/xen-tools-${PV}"
 
 pkg_setup() {
 	python-single-r1_pkg_setup
@@ -84,18 +85,22 @@ src_prepare() {
 	# Patch stubdom/Makefile to patch insource newlib & prevent internal downloading
 	epatch "${FILESDIR}"/${PN/-pvgrub/}-4.3-externals.patch
 
-	# Drop .config and Fix gcc-4.6
-	epatch 	"${FILESDIR}"/${PN/-pvgrub/}-4.3-fix_dotconfig-gcc.patch
-
 	# fix jobserver in Makefile
 	epatch "${FILESDIR}"/${PN}-4.2-jserver.patch
-
-	# gcc warnings/QA fix
-	epatch "${FILESDIR}"/${PN}-4.3.1-qa.patch
 
 	#Substitute for internal downloading. pciutils copied only due to the only .bz2
 	cp "${DISTDIR}"/pciutils-2.2.9.tar.bz2 ./stubdom/ || die "pciutils not copied to stubdom"
 	retar-externals || die "re-tar procedure failed"
+}
+
+src_configure() {
+	local myconf="--prefix=${PREFIX}/usr \
+		--libdir=${PREFIX}/usr/$(get_libdir) \
+		--libexecdir=${PREFIX}/usr/libexec \
+		--disable-werror \
+		--disable-xen"
+
+	econf ${myconf}
 }
 
 src_compile() {
