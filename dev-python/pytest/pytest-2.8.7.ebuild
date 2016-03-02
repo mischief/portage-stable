@@ -1,20 +1,20 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
 EAPI=5
 
-PYTHON_COMPAT=( python{2_7,3_3,3_4} pypy pypy3 )
+PYTHON_COMPAT=( python2_7 python3_{3,4,5} pypy pypy3 )
 
 inherit distutils-r1
 
-DESCRIPTION="simple powerful testing with Python"
+DESCRIPTION="Simple powerful testing with Python"
 HOMEPAGE="http://pytest.org/ https://pypi.python.org/pypi/pytest"
 SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~amd64-fbsd ~x86-fbsd ~amd64-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos"
 IUSE="doc test"
 
 # When bumping, please check setup.py for the proper py version
@@ -36,6 +36,8 @@ DEPEND="${RDEPEND}
 		dev-python/regendoc[${PYTHON_USEDEP}]
 	)"
 
+PATCHES=( "${FILESDIR}"/${P}-skip-test-on-pypy.patch )
+
 python_prepare_all() {
 	chmod o-w *egg*/* || die
 	# Disable versioning of py.test script to avoid collision with
@@ -45,6 +47,7 @@ python_prepare_all() {
 
 	# Prevent un-needed d'loading
 	sed -e "s/'sphinx.ext.intersphinx', //" -i doc/en/conf.py || die
+
 	distutils-r1_python_prepare_all
 }
 
