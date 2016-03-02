@@ -1,5 +1,5 @@
 # ChangeLog for dev-libs/libxml2
-# Copyright 1999-2015 Gentoo Foundation; Distributed under the GPL v2
+# Copyright 1999-2016 Gentoo Foundation; Distributed under the GPL v2
 # (auto-generated from git log)
 
 *libxml2-2.9.2-r1 (09 Aug 2015)
@@ -145,4 +145,80 @@
 
   Package-Manager: portage-2.2.20.1
   RepoMan-Options: --include-arches="ppc"
+
+  15 Nov 2015; Matt Turner <mattst88@gentoo.org> libxml2-2.9.2-r4.ebuild:
+  alpha stable, bug 560524.
+
+  15 Nov 2015; Markus Meier <maekke@gentoo.org> libxml2-2.9.2-r4.ebuild:
+  arm stable, bug #560524
+
+  Package-Manager: portage-2.2.24
+  RepoMan-Options: --include-arches="arm"
+
+  18 Nov 2015; Sergey Popov <pinkbyte@gentoo.org> libxml2-2.9.2-r4.ebuild:
+  s390 stable
+
+  Gentoo-Bug: 560524
+
+  Package-Manager: portage-2.2.23
+
+  18 Nov 2015; Agostino Sarubbo <ago@gentoo.org> libxml2-2.9.2-r4.ebuild:
+  ia64 stable wrt bug #560524
+
+  Package-Manager: portage-2.2.20.1
+  RepoMan-Options: --include-arches="ia64"
+
+  29 Nov 2015; Justin Lecher <jlec@gentoo.org>
+  +files/libxml2-2.9.2-python-ABIFLAG.patch, libxml2-2.9.2-r4.ebuild:
+  Fix python ABI detection
+
+  Gentoo recently moved closer to upstream in terms of naming python
+  with regards to the build ABI. This patch adopts the buildsystem
+  to this change
+
+  Gentoo-Bug: https://bugs.gentoo.org/show_bug.cgi?id=567066
+
+  Package-Manager: portage-2.2.25
+  Signed-off-by: Justin Lecher <jlec@gentoo.org>
+
+  25 Dec 2015; Mikle Kolyada <zlogene@gentoo.org> libxml2-2.9.2-r4.ebuild:
+  sparc stable wrt bug #560524
+
+  Package-Manager: portage-2.2.24
+
+*libxml2-2.9.3 (11 Jan 2016)
+
+  11 Jan 2016; Pacho Ramos <pacho@gentoo.org> +libxml2-2.9.3.ebuild:
+  Version bump
+
+  Package-Manager: portage-2.2.26
+
+  11 Jan 2016; Pacho Ramos <pacho@gentoo.org> -libxml2-2.9.2-r1.ebuild:
+  Drop old
+
+  Package-Manager: portage-2.2.26
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Replace all herds with appropriate projects (GLEP 67)
+
+  Replace all uses of herd with appropriate project maintainers, or no
+  maintainers in case of herds requested to be disbanded.
+
+  24 Jan 2016; Michał Górny <mgorny@gentoo.org> metadata.xml:
+  Set appropriate maintainer types in metadata.xml (GLEP 67)
+
+  17 Feb 2016; Steev Klimaszewski <steev@gentoo.org> libxml2-2.9.2-r4.ebuild:
+  Mark 2.9.2-r4 stable for arm64
+
+  Somehow this wasn't stabled, even though gettext deps on it and that is
+  stable for arm64.
+  Tests pass on Cortex A53
+
+  Package-Manager: portage-2.2.27
+
+  21 Feb 2016; Pacho Ramos <pacho@gentoo.org> libxml2-2.9.3.ebuild:
+  amd64 stable, bug 566378
+
+  Package-Manager: portage-2.2.27
+  RepoMan-Options: --include-arches="amd64"
 
