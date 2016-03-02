@@ -1,6 +1,6 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/perf/perf-3.2.ebuild,v 1.1 2012/02/28 22:21:05 vapier Exp $
+# $Id$
 
 EAPI="4"
 
@@ -11,10 +11,9 @@ MY_PV="${PV/_/-}"
 MY_PV="${MY_PV/-pre/-git}"
 
 DESCRIPTION="Userland tools for Linux Performance Counters"
-HOMEPAGE="http://perf.wiki.kernel.org/"
+HOMEPAGE="https://perf.wiki.kernel.org/"
 
-LINUX_V=$(get_version_component_range 1-2)
-
+LINUX_V="${PV:0:1}.x"
 if [[ ${PV/_rc} != ${PV} ]] ; then
 	LINUX_VER=$(get_version_component_range 1-2).$(($(get_version_component_range 3)-1))
 	PATCH_VERSION=$(get_version_component_range 1-3)
@@ -36,16 +35,25 @@ SRC_URI+=" mirror://kernel/linux/kernel/v${LINUX_V}/${LINUX_SOURCES}"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~x86"
-IUSE="+demangle +doc perl python slang"
+KEYWORDS="~amd64 ~arm ~mips ~ppc ~x86"
+IUSE="audit +demangle +doc perl python slang unwind"
 
-RDEPEND="demangle? ( sys-devel/binutils )
-	perl? ( || ( >=dev-lang/perl-5.10 sys-devel/libperl ) )
+RDEPEND="audit? ( sys-process/audit )
+	demangle? ( sys-devel/binutils )
+	perl? ( dev-lang/perl )
 	slang? ( dev-libs/newt )
+	unwind? ( sys-libs/libunwind )
 	dev-libs/elfutils"
 DEPEND="${RDEPEND}
 	${LINUX_PATCH+dev-util/patchutils}
-	doc? ( app-text/asciidoc app-text/xmlto )"
+	sys-devel/bison
+	sys-devel/flex
+	doc? (
+		app-text/asciidoc
+		app-text/sgml-common
+		app-text/xmlto
+		sys-process/time
+	)"
 
 S_K="${WORKDIR}/linux-${LINUX_VER}"
 S="${S_K}/tools/perf"
@@ -53,11 +61,12 @@ S="${S_K}/tools/perf"
 CONFIG_CHECK="~PERF_EVENTS ~KALLSYMS"
 
 pkg_setup() {
+	linux-info_pkg_setup
 	use python && python_set_active_version 2
 }
 
 src_unpack() {
-	local paths=( tools/perf include lib "arch/*/include" "arch/*/lib" )
+	local paths=( tools/perf tools/scripts tools/lib include lib "arch/*/include" "arch/*/lib" )
 
 	# We expect the tar implementation to support the -j option (both
 	# GNU tar and libarchive's tar support that).
@@ -98,8 +107,12 @@ src_prepare() {
 		-e '/-x c - /s:\$(ALL_LDFLAGS):\0 $(EXTLIBS):' \
 		-e '/^ALL_CFLAGS =/s:$: $(CFLAGS_OPTIMIZE):' \
 		-e '/^ALL_LDFLAGS =/s:$: $(LDFLAGS_OPTIMIZE):' \
-		-e '/.FORCE-PERF-VERSION-FILE/s,.FORCE-PERF-VERSION-FILE,,g' \
+		-e 's:$(sysconfdir_SQ)/bash_completion.d:/usr/share/bash-completion:' \
 		"${S}"/Makefile
+	sed -i \
+		-e '/.FORCE-PERF-VERSION-FILE/s,.FORCE-PERF-VERSION-FILE,,g' \
+		"${S}"/Makefile \
+		"${S}"/Documentation/Makefile
 
 	# Avoid the call to make kernelversion
 	echo "PERF_VERSION = ${MY_PV}" > PERF-VERSION-FILE
@@ -110,27 +123,26 @@ src_prepare() {
 
 puse() { usex $1 "" no; }
 perf_make() {
-	emake V=1 \
+	local arch=$(tc-arch)
+	[[ "${arch}" == "amd64" ]] && arch="x86_64"
+	emake -j1 V=1 \
 		CC="$(tc-getCC)" AR="$(tc-getAR)" \
 		prefix="/usr" bindir_relative="sbin" \
 		CFLAGS_OPTIMIZE="${CFLAGS}" \
 		LDFLAGS_OPTIMIZE="${LDFLAGS}" \
-		ARCH="$(tc-arch-kernel)" \
+		ARCH="${arch}" \
 		NO_DEMANGLE=$(puse demangle) \
+		NO_LIBAUDIT=$(puse audit) \
 		NO_LIBPERL=$(puse perl) \
 		NO_LIBPYTHON=$(puse python) \
+		NO_LIBUNWIND=$(puse unwind) \
 		NO_NEWT=$(puse slang) \
 		"$@"
 }
 
 src_compile() {
 	perf_make
-
-	if use doc ; then
-		pushd Documentation
-		emake ${makeargs}
-		popd
-	fi
+	use doc && perf_make -C Documentation
 }
 
 src_test() {
