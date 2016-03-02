@@ -34,7 +34,7 @@ kernel_linux kernel_FreeBSD lzo ncurses nfs nls numa opengl +pin-upstream-blobs
 +png pulseaudio python \
 rbd sasl +seccomp sdl sdl2 selinux smartcard snappy spice ssh static static-softmmu
 static-user systemtap tci test +threads usb usbredir +uuid vde +vhost-net \
-virtfs +vnc vte xattr xen xfs"
+virgl virtfs +vnc vte xattr xen xfs"
 
 COMMON_TARGETS="aarch64 alpha arm cris i386 m68k microblaze microblazeel mips
 mips64 mips64el mipsel or32 ppc ppc64 s390x sh4 sh4eb sparc sparc64 unicore32
@@ -123,7 +123,7 @@ SOFTMMU_LIB_DEPEND="${COMMON_LIB_DEPEND}
 		)
 	)
 	seccomp? ( >=sys-libs/libseccomp-2.1.0[static-libs(+)] )
-	smartcard? ( dev-libs/nss !app-emulation/libcacard )
+	smartcard? ( >=app-emulation/libcacard-2.5.0[static-libs(+)] )
 	snappy? ( app-arch/snappy[static-libs(+)] )
 	spice? (
 		>=app-emulation/spice-protocol-0.12.3
@@ -134,6 +134,7 @@ SOFTMMU_LIB_DEPEND="${COMMON_LIB_DEPEND}
 	usbredir? ( >=sys-apps/usbredir-0.6[static-libs(+)] )
 	uuid? ( >=sys-apps/util-linux-2.16.0[static-libs(+)] )
 	vde? ( net-misc/vde[static-libs(+)] )
+	virgl? ( media-libs/virglrenderer[static-libs(+)] )
 	virtfs? ( sys-libs/libcap )
 	xfs? ( sys-fs/xfsprogs[static-libs(+)] )"
 USER_LIB_DEPEND="${COMMON_LIB_DEPEND}"
@@ -156,7 +157,7 @@ CDEPEND="
 	qemu_softmmu_targets_x86_64? ( ${X86_FIRMWARE_DEPEND} )
 	python? ( ${PYTHON_DEPS} )
 	systemtap? ( dev-util/systemtap )
-	xen? ( app-emulation/xen-tools )"
+	xen? ( app-emulation/xen-tools:= )"
 DEPEND="${CDEPEND}
 	dev-lang/perl
 	=dev-lang/python-2*
@@ -306,7 +307,7 @@ src_prepare() {
 	# Cheap hack to disable gettext .mo generation.
 	use nls || rm -f po/*.po
 
-	epatch "${FILESDIR}"/qemu-1.7.0-cflags.patch
+	epatch "${FILESDIR}"/qemu-2.5.0-cflags.patch
 	[[ -n ${BACKPORTS} ]] && \
 		EPATCH_FORCE=yes EPATCH_SUFFIX="patch" EPATCH_SOURCE="${S}/patches" \
 			epatch
@@ -342,6 +343,11 @@ qemu_src_configure() {
 		--disable-guest-agent
 		--disable-strip
 		--disable-werror
+		# We support gnutls/nettle for crypto operations.  It is possible
+		# to use gcrypt when gnutls/nettle are disabled (but not when they
+		# are enabled), but it's not really worth the hassle.  Disable it
+		# all the time to avoid automatically detecting it. #568856
+		--disable-gcrypt
 		--python="${PYTHON}"
 		--cc="$(tc-getCC)"
 		--cxx="$(tc-getCXX)"
@@ -371,6 +377,7 @@ qemu_src_configure() {
 		$(conf_softmmu fdt)
 		$(conf_softmmu glusterfs)
 		$(conf_softmmu gnutls)
+		$(conf_softmmu gnutls nettle)
 		$(conf_softmmu gtk)
 		$(conf_softmmu infiniband rdma)
 		$(conf_softmmu iscsi libiscsi)
@@ -395,6 +402,7 @@ qemu_src_configure() {
 		$(conf_softmmu uuid)
 		$(conf_softmmu vde)
 		$(conf_softmmu vhost-net)
+		$(conf_softmmu virgl virglrenderer)
 		$(conf_softmmu virtfs)
 		$(conf_softmmu vnc)
 		$(conf_softmmu vte)
@@ -627,10 +635,6 @@ pkg_postinst() {
 	fi
 
 	fcaps cap_net_admin /usr/libexec/qemu-bridge-helper
-	if use virtfs && [ -n "${softmmu_targets}" ]; then
-		local virtfs_caps="cap_chown,cap_dac_override,cap_fowner,cap_fsetid,cap_setgid,cap_mknod,cap_setuid"
-		fcaps ${virtfs_caps} /usr/bin/virtfs-proxy-helper
-	fi
 }
 
 pkg_info() {
