@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
@@ -16,10 +16,6 @@ else
 fi
 
 IUSE="altivec iwmmxt loongson2f cpu_flags_x86_mmxext neon cpu_flags_x86_sse2 cpu_flags_x86_ssse3"
-RDEPEND="abi_x86_32? (
-	!<=app-emulation/emul-linux-x86-gtklibs-20131008
-	!app-emulation/emul-linux-x86-gtklibs[-abi_x86_32(-)]
-	)"
 
 src_configure() {
 	XORG_CONFIGURE_OPTIONS=(
