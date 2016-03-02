@@ -4,8 +4,6 @@
 
 EAPI="4"
 
-inherit eutils
-
 MY_P="${P}_autoconf"
 DESCRIPTION="Stressful Application Test"
 HOMEPAGE="https://code.google.com/p/stressapptest/"
@@ -22,7 +20,6 @@ DEPEND="${RDEPEND}"
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
-	epatch "${FILESDIR}"/${P}-cpuid-pic.patch
 	sed -i \
 		'/CXXFLAGS/s:-O3 -funroll-all-loops  -funroll-loops::' \
 		configure || die
