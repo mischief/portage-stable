@@ -6,11 +6,12 @@ EAPI="5"
 PYTHON_COMPAT=( python2_7 )
 PYTHON_REQ_USE="xml"
 
-inherit multilib python-r1 toolchain-funcs eutils
+inherit multilib python-r1 toolchain-funcs eutils bash-completion-r1
 
 MY_P="${P//_/-}"
 
-EXTRAS_VER="1.33"
+MY_RELEASEDATE="20150202"
+EXTRAS_VER="1.34"
 SEMNG_VER="${PV}"
 SELNX_VER="${PV}"
 SEPOL_VER="${PV}"
@@ -19,27 +20,27 @@ IUSE="audit pam dbus"
 
 DESCRIPTION="SELinux core utilities"
 HOMEPAGE="https://github.com/SELinuxProject/selinux/wiki"
-SRC_URI="https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/20150202/${MY_P}.tar.gz
-	mirror://gentoo/policycoreutils-extra-${EXTRAS_VER}.tar.bz2"
+SRC_URI="https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/${MY_RELEASEDATE}/${MY_P}.tar.gz
+	https://dev.gentoo.org/~perfinion/distfiles/policycoreutils-extra-${EXTRAS_VER}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="amd64 x86"
 
-DEPEND=">=sys-libs/libselinux-${SELNX_VER}[python]
+DEPEND=">=sys-libs/libselinux-${SELNX_VER}:=[python]
 	>=sys-libs/glibc-2.4
-	>=sys-libs/libcap-1.10-r10
-	>=sys-libs/libsemanage-${SEMNG_VER}[python]
-	sys-libs/libcap-ng
-	>=sys-libs/libsepol-${SEPOL_VER}
+	>=sys-libs/libcap-1.10-r10:=
+	>=sys-libs/libsemanage-${SEMNG_VER}:=[python]
+	sys-libs/libcap-ng:=
+	>=sys-libs/libsepol-${SEPOL_VER}:=
 	sys-devel/gettext
 	dev-python/ipy[${PYTHON_USEDEP}]
 	dbus? (
 		sys-apps/dbus
-		dev-libs/dbus-glib
+		dev-libs/dbus-glib:=
 	)
 	audit? ( >=sys-process/audit-1.5.1 )
-	pam? ( sys-libs/pam )
+	pam? ( sys-libs/pam:= )
 	${PYTHON_DEPS}"
 
 ### libcgroup -> seunshare
@@ -48,11 +49,12 @@ DEPEND=">=sys-libs/libselinux-${SELNX_VER}[python]
 # pax-utils for scanelf used by rlpkg
 RDEPEND="${DEPEND}
 	dev-python/sepolgen
-	app-misc/pax-utils"
+	app-misc/pax-utils
+	!<sys-apps/openrc-0.14"
 
-S="${WORKDIR}/${MY_P}"
 S1="${WORKDIR}/${MY_P}"
 S2="${WORKDIR}/policycoreutils-extra"
+S="${S1}"
 
 src_prepare() {
 	epatch "${FILESDIR}/0010-remove-sesandbox-support.patch"
@@ -70,6 +72,8 @@ src_prepare() {
 		|| die "fixfiles sed 2 failed"
 
 	epatch_user
+
+	sed -i 's/-Werror//g' "${S1}"/*/Makefile || die "Failed to remove Werror"
 
 	python_copy_sources
 	# Our extra code is outside the regular directory, so set it to the extra
@@ -102,7 +106,15 @@ src_install() {
 	# Python scripts are present in many places. There are no extension modules.
 	installation-policycoreutils() {
 		einfo "Installing policycoreutils"
-		emake -C "${BUILD_DIR}" DESTDIR="${D}" AUDITH="$(usex audit)" PAMH="$(usex pam)" INOTIFYH="$(usex dbus)" SESANDBOX="n" AUDIT_LOG_PRIV="y" PYLIBVER="${EPYTHON}" install
+		emake -C "${BUILD_DIR}" DESTDIR="${D}" \
+			AUDITH="$(usex audit)" \
+			PAMH="$(usex pam)" \
+			INOTIFYH="$(usex dbus)" \
+			SESANDBOX="n" \
+			AUDIT_LOG_PRIV="y" \
+			PYLIBVER="${EPYTHON}" \
+			LIBDIR="\$(PREFIX)/$(get_libdir)" \
+			install
 		python_optimize
 	}
 
@@ -119,11 +131,11 @@ src_install() {
 	S="${S1}" # back for later
 
 	# remove redhat-style init script
-	rm -fR "${D}/etc/rc.d"
+	rm -fR "${D}/etc/rc.d" || die
 
 	# compatibility symlinks
 	dosym /sbin/setfiles /usr/sbin/setfiles
-	dosym /$(get_libdir)/rc/runscript_selinux.so /$(get_libdir)/rcscripts/runscript_selinux.so
+	bashcomp_alias setsebool getsebool
 
 	# location for policy definitions
 	dodir /var/lib/selinux
@@ -138,10 +150,10 @@ src_install() {
 	done
 
 	dodir /usr/share/doc/${PF}/mcstrans/examples
-	cp -dR "${S1}"/mcstrans/share/examples/* "${D}/usr/share/doc/${PF}/mcstrans/examples"
+	cp -dR "${S1}"/mcstrans/share/examples/* "${D}/usr/share/doc/${PF}/mcstrans/examples" || die
 }
 
 pkg_postinst() {
 	# The selinux_gentoo init script is no longer needed with recent OpenRC
-	elog "The selinux_gentoo init script will be removed in future versions since it is not needed with OpenRC 0.13."
+	elog "The selinux_gentoo init script has been removed in this version as it is not required after OpenRC 0.13."
 }
