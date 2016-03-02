@@ -9,6 +9,6 @@ LICENSE=GPL-2
 RDEPEND=virtual/udev systemd? ( >=sys-apps/systemd-199 ) app-arch/cpio >=app-shells/bash-4.0 >sys-apps/kmod-5[tools] || ( >=sys-apps/sysvinit-2.87-r3 sys-apps/systemd[sysv-utils] sys-apps/systemd-sysv-utils ) >=sys-apps/util-linux-2.21 debug? ( dev-util/strace ) selinux? ( sys-libs/libselinux sys-libs/libsepol sec-policy/selinux-dracut )
 RESTRICT=test
 SLOT=0
-SRC_URI=mirror://kernel/linux/utils/boot/dracut/dracut-040.tar.xz
+SRC_URI=mirror://kernel/linux/utils/boot/dracut/dracut-043.tar.xz
 _eclasses_=bash-completion-r1	acf715fa09463f043fbfdc1640f3fb85	eutils	9fb270e417e0e83d64ca52586c4a79de	linux-info	8cbc678e083c23e4ad546ca6509cf304	multilib	62927b3db3a589b0806255f3a002d5d3	systemd	090342761f573a8280dd5aa6b0345f3b	toolchain-funcs	7a212e5e01adfa4805c9978366e6ee85	versionator	99ae9d758cbe7cfed19170e7d48f5a9c
-_md5_=c07a846d4310349fd76ad66335fde463
+_md5_=3b37e33e49f155995c030c9e8e45fab2
