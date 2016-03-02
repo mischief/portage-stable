@@ -1,14 +1,14 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-libs/opencryptoki/opencryptoki-2.4.2.ebuild,v 1.1 2012/12/15 21:25:32 alonbl Exp $
+# $Id$
 
-EAPI="2"
+EAPI="5"
 
-inherit autotools eutils multilib flag-o-matic user
+inherit autotools multilib flag-o-matic user
 
 DESCRIPTION="PKCS#11 provider cryptographic hardware"
 HOMEPAGE="http://sourceforge.net/projects/opencryptoki"
-SRC_URI="mirror://sourceforge/opencryptoki/${P}.tar.gz"
+SRC_URI="mirror://sourceforge/opencryptoki/${PV}/${PN}-v${PV}.tgz"
 
 # Upstream is looking into relicensing it into CPL-1.0 entirely; the CCA
 # token sources are under CPL-1.0 already.
@@ -17,10 +17,12 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~x86"
 
 RDEPEND="tpm? ( app-crypt/trousers )
-		 dev-libs/openssl"
+		 dev-libs/openssl:*"
 DEPEND="${RDEPEND}"
 
 IUSE="+tpm debug"
+
+S="${WORKDIR}/${PN}"
 
 # tests right now basically don't exist; the only available thing would
 # test against an installed copy and would kill a running pcscd, all
@@ -32,7 +34,7 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch "${FILESDIR}/${P}-destdir.patch"
+	mv configure.in configure.ac || die
 	eautoreconf
 }
 
@@ -63,16 +65,11 @@ src_configure() {
 		--disable-icatok \
 		--enable-swtok \
 		$(use_enable tpm tpmtok) \
-		--disable-aeptok \
-		--disable-bcomtok \
-		--disable-ccatok \
-		--disable-crtok \
-		--disable-icctok \
-		--disable-pkcscca_migrate
+		--disable-ccatok
 }
 
 src_install() {
-	emake install DESTDIR="${D}" || die "emake install failed"
+	emake install DESTDIR="${ED}"
 
 	# Install libopencryptoki in the standard directory for libraries.
 	mv "${D}"/usr/$(get_libdir)/opencryptoki/libopencryptoki.so* "${D}"/usr/$(get_libdir) || die
@@ -96,5 +93,9 @@ src_install() {
 	use tpm || sed -i -e '/use tcsd/d' "${T}"/pkcsslotd.init
 	newinitd "${T}/pkcsslotd.init" pkcsslotd
 
-	dodoc README AUTHORS FAQ TODO doc/openCryptoki-HOWTO.pdf || die
+	# We create /var dirs at runtime as needed, so don't bother installing
+	# our own.
+	rm -r "${D}"/var/{lib,lock} || die
+
+	dodoc README AUTHORS FAQ TODO doc/openCryptoki-HOWTO.pdf
 }
