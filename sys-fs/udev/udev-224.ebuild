@@ -29,8 +29,7 @@ IUSE="acl +kmod selinux static-libs"
 
 RESTRICT="test"
 
-COMMON_DEPEND=">=sys-apps/util-linux-2.27.1[${MULTILIB_USEDEP}]
-	sys-libs/libcap[${MULTILIB_USEDEP}]
+COMMON_DEPEND=">=sys-apps/util-linux-2.24
 	acl? ( sys-apps/acl )
 	kmod? ( >=sys-apps/kmod-16 )
 	selinux? ( >=sys-libs/libselinux-2.1.9 )
@@ -46,6 +45,7 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/gperf
 	>=dev-util/intltool-0.50
 	>=sys-apps/coreutils-8.16
+	sys-libs/libcap
 	virtual/os-headers
 	virtual/pkgconfig
 	>=sys-devel/make-3.82-r4
@@ -104,7 +104,7 @@ pkg_setup() {
 src_prepare() {
 	if ! [[ ${PV} = 9999* ]]; then
 		# secure_getenv() disable for non-glibc systems wrt bug #443030
-		if ! [[ $(grep -r secure_getenv * | wc -l) -eq 26 ]]; then
+		if ! [[ $(grep -r secure_getenv * | wc -l) -eq 25 ]]; then
 			eerror "The line count for secure_getenv() failed, see bug #443030"
 			die
 		fi
@@ -147,22 +147,16 @@ src_prepare() {
 	fi
 }
 
-src_configure() {
-	# Prevent conflicts with i686 cross toolchain, bug 559726
-	tc-export AR CC NM OBJCOPY RANLIB
-	multilib-minimal_src_configure
-}
-
 multilib_src_configure() {
 	tc-export CC #463846
 	export cc_cv_CFLAGS__flto=no #502950
 	export cc_cv_CFLAGS__Werror_shadow=no #554454
-	export cc_cv_LDFLAGS__Wl__fuse_ld_gold=no #573874
 
 	# Keep sorted by ./configure --help and only pass --disable flags
 	# when *required* to avoid external deps or unnecessary compile
 	local econf_args
 	econf_args=(
+		ac_cv_search_cap_init=
 		--libdir=/usr/$(get_libdir)
 		--docdir=/usr/share/doc/${PF}
 		$(multilib_native_use_enable static-libs static)
@@ -195,7 +189,6 @@ multilib_src_configure() {
 		--with-bashcompletiondir="$(get_bashcompdir)"
 		--with-rootprefix=
 		$(multilib_is_native_abi && echo "--with-rootlibdir=/$(get_libdir)")
-		--disable-elfutils
 	)
 
 	if ! multilib_is_native_abi; then

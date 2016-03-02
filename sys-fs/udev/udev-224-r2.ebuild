@@ -29,7 +29,7 @@ IUSE="acl +kmod selinux static-libs"
 
 RESTRICT="test"
 
-COMMON_DEPEND=">=sys-apps/util-linux-2.27.1[${MULTILIB_USEDEP}]
+COMMON_DEPEND=">=sys-apps/util-linux-2.24
 	sys-libs/libcap[${MULTILIB_USEDEP}]
 	acl? ( sys-apps/acl )
 	kmod? ( >=sys-apps/kmod-16 )
@@ -104,7 +104,7 @@ pkg_setup() {
 src_prepare() {
 	if ! [[ ${PV} = 9999* ]]; then
 		# secure_getenv() disable for non-glibc systems wrt bug #443030
-		if ! [[ $(grep -r secure_getenv * | wc -l) -eq 26 ]]; then
+		if ! [[ $(grep -r secure_getenv * | wc -l) -eq 25 ]]; then
 			eerror "The line count for secure_getenv() failed, see bug #443030"
 			die
 		fi
@@ -114,6 +114,8 @@ src_prepare() {
 	if [[ -n "${patchset}" ]]; then
 		EPATCH_SUFFIX=patch EPATCH_FORCE=yes epatch
 	fi
+
+	epatch "${FILESDIR}/224-0002-Use-getxpid-syscall-on-alpha-for-raw_getpid.patch"
 
 	cat <<-EOF > "${T}"/40-gentoo.rules
 	# Gentoo specific floppy and usb groups
@@ -147,17 +149,10 @@ src_prepare() {
 	fi
 }
 
-src_configure() {
-	# Prevent conflicts with i686 cross toolchain, bug 559726
-	tc-export AR CC NM OBJCOPY RANLIB
-	multilib-minimal_src_configure
-}
-
 multilib_src_configure() {
 	tc-export CC #463846
 	export cc_cv_CFLAGS__flto=no #502950
 	export cc_cv_CFLAGS__Werror_shadow=no #554454
-	export cc_cv_LDFLAGS__Wl__fuse_ld_gold=no #573874
 
 	# Keep sorted by ./configure --help and only pass --disable flags
 	# when *required* to avoid external deps or unnecessary compile
