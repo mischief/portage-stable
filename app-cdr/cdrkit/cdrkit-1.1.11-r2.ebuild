@@ -1,22 +1,23 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/app-cdr/cdrkit/cdrkit-1.1.11-r1.ebuild,v 1.3 2013/02/22 18:38:34 zmedico Exp $
+# $Id$
 
-EAPI=4
+EAPI=5
 inherit cmake-utils eutils
 
 DESCRIPTION="A set of tools for CD/DVD reading and recording, including cdrecord"
 HOMEPAGE="http://cdrkit.org"
-SRC_URI="mirror://debian/pool/main/c/${PN}/${PN}_${PV}.orig.tar.gz"
+SRC_URI="mirror://debian/pool/main/c/${PN}/${PN}_${PV}.orig.tar.gz
+	https://dev.gentoo.org/~ssuominen/${P}-libcdio-paranoia.tar.xz"
 
 LICENSE="GPL-2 LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86 ~x86-fbsd ~arm-linux ~x86-linux"
+KEYWORDS="alpha amd64 ~arm ~arm64 hppa ia64 ~mips ppc ppc64 sparc x86 ~x86-fbsd ~arm-linux ~x86-linux"
 IUSE="debug hfs unicode"
 
 RDEPEND="app-arch/bzip2
 	!app-cdr/cdrtools
-	media-sound/cdparanoia
+	dev-libs/libcdio-paranoia
 	sys-apps/file
 	sys-libs/zlib
 	unicode? ( virtual/libiconv )
@@ -26,8 +27,9 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}"/${P}-paranoiacdda.patch \
-		"${FILESDIR}"/${P}-cmakewarn.patch
+		"${FILESDIR}"/${P}-cmakewarn.patch \
+		"${WORKDIR}"/patches/${P}-paranoiacdda.patch \
+		"${WORKDIR}"/patches/${P}-paranoiacdio.patch
 
 	echo '.so wodim.1' > ${T}/cdrecord.1
 	echo '.so genisoimage.1' > ${T}/mkisofs.1
