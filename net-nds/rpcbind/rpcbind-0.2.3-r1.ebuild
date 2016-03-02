@@ -11,7 +11,7 @@ if [[ ${PV} == "9999" ]] ; then
 	inherit autotools git-r3
 else
 	SRC_URI="mirror://sourceforge/${PN}/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86"
+	KEYWORDS="alpha amd64 arm ~arm64 hppa ia64 ~mips ppc ppc64 ~s390 ~sh sparc x86"
 fi
 
 DESCRIPTION="portmap replacement which supports RPC over various protocols"
@@ -31,6 +31,8 @@ RDEPEND="${CDEPEND}
 
 src_prepare() {
 	[[ ${PV} == "9999" ]] && eautoreconf
+	epatch "${FILESDIR}"/${P}-libtirpc.patch
+	epatch "${FILESDIR}"/${P}-mem-corrupt.patch #560990
 	epatch_user
 }
 
