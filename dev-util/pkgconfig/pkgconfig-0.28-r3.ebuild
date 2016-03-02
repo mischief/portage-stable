@@ -1,18 +1,23 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-util/pkgconfig/pkgconfig-0.28-r1.ebuild,v 1.13 2014/07/22 12:39:54 vapier Exp $
+# $Id$
 
 EAPI=5
 
-inherit flag-o-matic libtool multilib multilib-minimal
+# Do not inherit autotools in non-live ebuild - causes circular dependency, bug #550856
+inherit eutils flag-o-matic libtool multilib multilib-minimal
 
 MY_P=pkg-config-${PV}
 
 if [[ ${PV} == *9999* ]]; then
+	# 1.12 is only needed for tests due to some am__check_pre / LOG_DRIVER
+	# weirdness with "/bin/bash /bin/sh" in arguments chain with >=1.13
+	WANT_AUTOMAKE=1.12
 	EGIT_REPO_URI="git://anongit.freedesktop.org/pkg-config"
-	inherit autotools git-2
+	EGIT_CHECKOUT_DIR=${WORKDIR}/${MY_P}
+	inherit autotools git-r3
 else
-	KEYWORDS="alpha amd64 arm arm64 hppa ia64 m68k ~mips ppc ppc64 s390 sh sparc x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~m68k ~mips ~ppc ~ppc64 ~s390 ~sh ~sparc ~x86 ~ppc-aix ~amd64-fbsd ~sparc-fbsd ~x86-fbsd ~x64-freebsd ~x86-freebsd ~hppa-hpux ~ia64-hpux ~x86-interix ~amd64-linux ~arm-linux ~ia64-linux ~x86-linux ~ppc-macos ~x64-macos ~x86-macos ~m68k-mint ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris"
 	SRC_URI="http://pkgconfig.freedesktop.org/releases/${MY_P}.tar.gz"
 fi
 
@@ -34,7 +39,16 @@ S=${WORKDIR}/${MY_P}
 DOCS=( AUTHORS NEWS README )
 
 src_prepare() {
+	epatch "${FILESDIR}"/${P}-strip_system_library_dirs_reliably.patch
+
 	sed -i -e "s|^prefix=/usr\$|prefix=${EPREFIX}/usr|" check/simple.pc || die #434320
+
+	# Large file support, fixed in upstream git; bug #550508
+	epatch "${FILESDIR}"/${P}-lfs.patch
+	# lfs patch touches config.h.in; need this hack to prevent autoreconf and automake
+	touch aclocal.m4 config.h.in Makefile.in
+
+	epatch_user
 
 	if [[ ${PV} == *9999* ]]; then
 		eautoreconf
