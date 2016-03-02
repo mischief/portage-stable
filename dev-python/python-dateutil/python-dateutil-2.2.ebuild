@@ -8,7 +8,7 @@ PYTHON_COMPAT=( python{2_7,3_3,3_4} pypy )
 inherit distutils-r1
 
 DESCRIPTION="Extensions to the standard Python datetime module"
-HOMEPAGE="https://launchpad.net/dateutil https://pypi.python.org/pypi/python-dateutil"
+HOMEPAGE="http://labix.org/python-dateutil https://pypi.python.org/pypi/python-dateutil"
 SRC_URI="mirror://pypi/${PN:0:1}/${PN}/${P}.tar.gz"
 
 LICENSE="BSD"
@@ -21,11 +21,6 @@ RDEPEND="dev-python/six[${PYTHON_USEDEP}]
 	!<dev-python/python-dateutil-2.1"
 DEPEND="${RDEPEND}
 	dev-python/setuptools[${PYTHON_USEDEP}]"
-
-PATCHES=(
-	# Bug 410725.
-	"${FILESDIR}/${P}-open-utf-8.patch"
-)
 
 python_prepare_all() {
 	# Use zoneinfo in /usr/share/zoneinfo.
