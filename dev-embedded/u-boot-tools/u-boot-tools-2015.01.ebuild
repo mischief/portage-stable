@@ -1,10 +1,10 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-embedded/u-boot-tools/u-boot-tools-2011.12.ebuild,v 1.4 2012/08/08 15:09:18 nativemad Exp $
+# $Id$
 
-EAPI="4"
+EAPI="5"
 
-inherit toolchain-funcs
+inherit eutils toolchain-funcs
 
 MY_P="u-boot-${PV/_/-}"
 DESCRIPTION="utilities for working with Das U-Boot"
@@ -13,21 +13,21 @@ SRC_URI="ftp://ftp.denx.de/pub/u-boot/${MY_P}.tar.bz2"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="amd64 arm x86"
+KEYWORDS="~amd64 ~arm ~x86"
 IUSE=""
 
 S=${WORKDIR}/${MY_P}
 
-src_prepare() {
-	sed -i -e "s:-g ::" tools/Makefile || die
-}
-
 src_compile() {
+	# Unset a few KBUILD variables. Bug #540476
+	unset KBUILD_OUTPUT KBUILD_SRC
+	emake defconfig
 	emake \
-		HOSTSTRIP=echo \
+		HOSTSTRIP=: \
 		HOSTCC="$(tc-getCC)" \
 		HOSTCFLAGS="${CFLAGS} ${CPPFLAGS}"' $(HOSTCPPFLAGS)' \
 		HOSTLDFLAGS="${LDFLAGS}" \
+		CONFIG_ENV_OVERWRITE=y \
 		tools-all
 }
 
