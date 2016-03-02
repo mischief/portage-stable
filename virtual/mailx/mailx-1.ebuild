@@ -1,8 +1,8 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 1999-2014 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Id$
 
-EAPI=3
+EAPI=5
 
 DESCRIPTION="Virtual for mail implementations"
 HOMEPAGE=""
@@ -14,6 +14,7 @@ KEYWORDS="alpha amd64 arm hppa ia64 ~mips ppc ppc64 s390 sh sparc x86 ~x86-freeb
 IUSE=""
 
 DEPEND=""
-RDEPEND="|| (	mail-client/mailx
+RDEPEND="|| (	net-mail/mailutils
+				mail-client/mailx
 				mail-client/nail
-				net-mail/mailutils )"
+				sys-freebsd/freebsd-ubin )"
